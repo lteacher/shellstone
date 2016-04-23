@@ -1,3 +1,4 @@
+part of shellstone;
 
 /// This annotation defines a Model which generally represents a table of
 /// collection.
@@ -13,6 +14,8 @@ class Model {
     this.autoCreatedAt,
     this.autoUpdatedAt
   });
+
+  // static Future<dynamic> find(name) => Find('');
 }
 
 /// This annotation defines an attribute which is essentially the columns,

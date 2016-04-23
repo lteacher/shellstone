@@ -1,3 +1,6 @@
 library shellstone;
 
-export 'src/annotations.dart';
+import 'dart:async';
+
+part 'src/annotation.dart';
+part 'src/modelling.dart';

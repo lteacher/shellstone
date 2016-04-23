@@ -7,6 +7,9 @@ description:
   An attempt at producing a Redstone / Shelf based package to also do some ORM
   functionality
 
+dependencies:
+  smoke: '^0.3.6+2'
+
 dev_dependencies:
   test: '^0.12.0'
   grinder: "^0.8.0+2"
