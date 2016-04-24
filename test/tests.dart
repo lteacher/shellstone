@@ -1,7 +1,9 @@
 library tests;
 
-import 'models.dart' as models;
+import 'annotations.dart' as annotations;
+import 'querylang.dart' as queries;
 
 main() {
-  models.main();
+  annotations.main();
+  queries.main();
 }

@@ -2,5 +2,5 @@ library shellstone;
 
 import 'dart:async';
 
-part 'src/annotation.dart';
-part 'src/modelling.dart';
+part 'src/annotations.dart';
+part 'src/querylang.dart';

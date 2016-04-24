@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 import '../lib/shellstone.dart';
 
 main() {
-  group('Models', () {
+  group('Annotations', () {
     test('@Model(identity:String) can set the identity for the model', () {
       expect(model.identity,equals('user'));
     });

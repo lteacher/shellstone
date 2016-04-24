@@ -15,7 +15,15 @@ class Model {
     this.autoUpdatedAt
   });
 
-  // static Future<dynamic> find(name) => Find('');
+  static Identifier get(name) => new ModelAction(name).get();
+  static Query find(name) => new ModelAction(name).find();
+  static Query findAll(name) => new ModelAction(name).findAll();
+
+  // static Query insert(entity) => new ModelAction(name).insert(entity);
+  // static Query insertAll(List entities) => new ModelAction(name).insert(List entities);
+
+  // static Query update(entity) => new ModelAction(name).insert(entity);
+  // static Query updateAll(List entities) => new ModelAction(name).insert(List entities);
 }
 
 /// This annotation defines an attribute which is essentially the columns,
