@@ -36,14 +36,14 @@ main() {
 
 
 // Get the user model reflectee
-dynamic get model => reflectClass(User).metadata.first.reflectee;
+dynamic get model => reflectClass(TestModel).metadata.first.reflectee;
 dynamic attr(name) {
-  var att = reflectClass(User).declarations[new Symbol(name)]; //metadata.first.reflectee;
+  var att = reflectClass(TestModel).declarations[new Symbol(name)]; //metadata.first.reflectee;
   return att.metadata.first.reflectee;
 }
 
 @Model(identity: 'user', connection: 'mongodb', autoCreatedAt: true, autoUpdatedAt: true)
-class User {
+class TestModel {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string', column: 'user_name') String username;
 }

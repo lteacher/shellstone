@@ -1,7 +1,9 @@
 part of shellstone;
 
-/// This annotation defines a Model which generally represents a table of
-/// collection.
+/// An annotation to represent the metadata of a Model.
+///
+/// Essentially the annotation defines a collection or table and the relevant
+/// properties for interacting with that particular model
 class Model {
   final String identity;
   final String connection;
@@ -15,8 +17,16 @@ class Model {
     this.autoUpdatedAt
   });
 
+  /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
+  ///
+  /// An Identifier provides an [Identifier.id] method which is used to get a
+  /// specific [Model] entity by its primary key
   static Identifier get(name) => new ModelAction(name).get();
+
+  /// The [find] method is used to find a *single*, or the *first* matching entity
   static Query find(name) => new ModelAction(name).find();
+
+  /// The [findAll] method is used to find a *all* matching entites
   static Query findAll(name) => new ModelAction(name).findAll();
 
   // static Query insert(entity) => new ModelAction(name).insert(entity);
@@ -26,8 +36,11 @@ class Model {
   // static Query updateAll(List entities) => new ModelAction(name).insert(List entities);
 }
 
-/// This annotation defines an attribute which is essentially the columns,
-/// however, you can add additional properties.
+/// An annotation to represent the metadata of an Attribute.
+///
+/// Attributes are fields or columns of a data set. The annotation allows the setting
+/// of various options that are used to describe the attribute for interaction
+/// at the data access layer.
 class Attr {
   final String type;
   final String column;

@@ -9,6 +9,7 @@ description:
 
 dependencies:
   smoke: '^0.3.6+2'
+  redstone: '0.6.5'
 
 dev_dependencies:
   test: '^0.12.0'

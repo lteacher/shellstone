@@ -6,6 +6,8 @@
 
 [![Build Status](https://api.travis-ci.org/lessonteacher/shellstone.svg?branch=master)](https://travis-ci.org/lessonteacher/shellstone)
 
+_**Note**: This is a currently a WIP and does not actually work yet. When it is on Pub then it will be available only. If you think the idea is good you can communicate via the issues system and contribute to features_
+
 ## Usage
 
 To be expanded on, essentially for the ORM factor I expect something like the following to be used.

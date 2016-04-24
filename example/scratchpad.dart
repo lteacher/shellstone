@@ -1,4 +1,3 @@
-import 'dart:async';
 import '../lib/shellstone.dart';
 
 @Model()
@@ -7,13 +6,7 @@ class User {
 }
 
 main() {
-  Future result = Model.find('User').where(['name']).eq('Bill').run();
-
-  result.then((List list) {
-    list.forEach((entry) {
-      print('Operator: ${entry.op} Values: ${entry.values}');
-    });
-  });
+  Shellstone.start();
 }
 
 
