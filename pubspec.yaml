@@ -10,7 +10,7 @@ description:
 dependencies:
   smoke: '^0.3.6+2'
   redstone: '0.6.5'
-
+  sqljocky: '0.14.1'
 dev_dependencies:
   test: '^0.12.0'
   matcher: '0.12.0+2'

@@ -5,7 +5,7 @@ import 'setups.dart';
 main() {
   setUp(() {
     // Start shellstone to setup any annotations
-    Shellstone.start();
+    Shellstone.setup();
   });
 
   group('Builders', () {

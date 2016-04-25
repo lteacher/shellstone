@@ -5,7 +5,7 @@ import 'setups.dart';
 main() {
   setUp(() {
     // Start shellstone to setup any annotations
-    Shellstone.start();
+    Shellstone.setup();
   });
 
   group('Metadata', () {
@@ -18,7 +18,7 @@ main() {
     });
 
     test('Model.indentity can be retrieved', () {
-      expect(model.identity, equals('user'));
+      expect(model.resource, equals('user'));
     });
 
     test('Model.autoCreatedAt can be retrieved', () {

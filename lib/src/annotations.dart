@@ -5,13 +5,13 @@ part of shellstone;
 /// Essentially the annotation defines a collection or table and the relevant
 /// properties for interacting with that particular model
 class Model {
-  final String identity;
-  final String connection;
+  final String resource;
+  final String dataSource;
   final bool autoCreatedAt;
   final bool autoUpdatedAt;
 
   const Model(
-      {this.identity, this.connection, this.autoCreatedAt, this.autoUpdatedAt});
+      this.resource, {this.dataSource:'mysql', this.autoCreatedAt:true, this.autoUpdatedAt:true});
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///

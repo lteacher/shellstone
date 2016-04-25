@@ -1,31 +1,34 @@
 import '../lib/shellstone.dart';
+import 'package:sqljocky/sqljocky.dart';
+import 'dart:async';
 
-@Model()
+@Model('User')
 class User {
-  @Attr(type: 'string', column: 'FullName') String name;
-  @Attr() int count;
-
-  doStuff() {
-
-  }
+  @Attr(type: 'string', column: 'fullName') String name;
 }
 
-main() {
-  Shellstone.start();
+main() async {
+  Shellstone.setup();
 
-  // Model.find('User').where(['username','password']).eq(['bill','12345']).run();
+  Stream<Row> results = await Model.find('User').where(['username','password']).eq(['bill','12345']).run();
+
+  print(results);
+
+  results.forEach((row) {
+    print(row[0]);
+  });
 
   // User user = EntityBuilder.create('User',{const Symbol('name'):'Jimmah'});
   //
   // Map wrapped = Metadata.wrap(user);
 
-  User user = Metadata.unwrap('User',{'FullName':'Billy Bob'});
+  // User user = Metadata.unwrap('User',{'FullName':'Billy Bob'});
 
-  print(user.name);
+  // print(user.name);
 }
 
 
-// Waterline Examples
+// Javascript Examples
 // User.find({ where: { name: 'foo' }, skip: 20, limit: 10, sort: 'name DESC' });
 // User.find({ name: { '!' : ['Walter', 'Skyler'] }});
 

@@ -64,7 +64,7 @@ abstract class Constrainable {
 
 /// Defines a class which can be considered runnable
 abstract class Runnable {
-  Future run();
+  dynamic run();
 }
 
 /// A concrete implementation of the [filter] and [limit] methods.
@@ -78,7 +78,7 @@ class Constraint extends Chainable implements Constrainable, Runnable {
   Runnable filter(f) => _init('filter', f, _chain);
 
   /// Executes the [QueryChain.run] method
-  Future run() => _run();
+  dynamic run() => _run();
 }
 
 /// Defines a [Chainable] class which can identified by the [id] method
@@ -97,7 +97,7 @@ class Query extends Chainable implements Runnable {
   Filter where(fields) => _init('where', fields, new Filter(_chain));
 
   /// Executes the [QueryChain.run] method
-  Future run() => _run();
+  dynamic run() => _run();
 }
 
 /// Defines a class which implements the various [Filterable] methods
@@ -146,8 +146,25 @@ class QueryChain implements Runnable {
   QueryChain(this._action);
 
   /// Runs the query chain
-  Future run() {
-    return new Future.value(_chain);
+  dynamic run() {
+    // Get all the random stuff needed
+    Model model = Metadata.model(_action.name);
+    var resource = model.resource;
+    var dataSource = model.dataSource;
+    var dbAdapter = Shellstone.adapters[dataSource];
+
+    // Create a new query adapter for this run
+    QueryAdapter q = dbAdapter.getQueryAdapter(_action.type, resource);
+    q.db = dbAdapter;
+
+    // For each chainable
+    _chain.forEach((c) {
+      // Map the token
+      q.mapToken(new QueryToken(c.op, c.values));
+    });
+
+    // Return the result of the query adapter run
+    return q.run();
   }
 
   /// Adds a [Chainable] to the query chain
@@ -166,11 +183,11 @@ class QueryChain implements Runnable {
 /// to the query chain that this action is a 'find' or other example.
 class ModelAction {
   String type;
-  String _model;
+  String name;
   QueryChain _chain;
 
   // Constructor
-  ModelAction(this._model) {
+  ModelAction(this.name) {
     _chain = new QueryChain(this);
   }
 
@@ -201,4 +218,11 @@ class ModelAction {
   /// Update a collection of entities
   Query updateAll(List<dynamic> entities) =>
       _init('updateAll', new Query(_chain));
+}
+
+class QueryToken {
+  final String modifier;
+  final dynamic values;
+
+  const QueryToken(this.modifier, this.values);
 }

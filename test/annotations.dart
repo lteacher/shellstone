@@ -4,12 +4,12 @@ import 'setups.dart';
 
 main() {
   group('Annotations', () {
-    test('@Model(identity:String) can set the identity for the model', () {
-      expect(model.identity,equals('user'));
+    test('@Model(resource:String) can set the resource for the model', () {
+      expect(model.resource,equals('user'));
     });
 
-    test('@Model(connection:String) can set the connection for the model', () {
-      expect(model.connection,equals('mongodb'));
+    test('@Model(dataSource:String) can set the connection for the model', () {
+      expect(model.dataSource,equals('mongo'));
     });
 
     test('@Model(autoCreatedAt:bool) sets the auto created option', () {
