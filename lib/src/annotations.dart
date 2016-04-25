@@ -10,12 +10,8 @@ class Model {
   final bool autoCreatedAt;
   final bool autoUpdatedAt;
 
-  const Model({
-    this.identity,
-    this.connection,
-    this.autoCreatedAt,
-    this.autoUpdatedAt
-  });
+  const Model(
+      {this.identity, this.connection, this.autoCreatedAt, this.autoUpdatedAt});
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///
@@ -29,11 +25,21 @@ class Model {
   /// The [findAll] method is used to find a *all* matching entites
   static Query findAll(name) => new ModelAction(name).findAll();
 
-  // static Query insert(entity) => new ModelAction(name).insert(entity);
-  // static Query insertAll(List entities) => new ModelAction(name).insert(List entities);
+  /// The [insert] method is used to insert a given entity
+  static Query insert(entity) =>
+      new ModelAction(Metadata.name(entity)).insert(entity);
 
-  // static Query update(entity) => new ModelAction(name).insert(entity);
-  // static Query updateAll(List entities) => new ModelAction(name).insert(List entities);
+  /// The [insertAll] method inserts all the entities in the collection
+  static Query insertAll(List entities) =>
+      new ModelAction(Metadata.name(entities)).insertAll(entities);
+
+  /// The [update] method is used to update an entity if it exists
+  static Query update(entity) =>
+      new ModelAction(Metadata.name(entity)).insert(entity);
+
+  /// The [updateAll] method updates all of the entities in the [entities] colllection
+  static Query updateAll(List entities) =>
+      new ModelAction(Metadata.name(entities)).insertAll(entities);
 }
 
 /// An annotation to represent the metadata of an Attribute.
@@ -46,5 +52,5 @@ class Attr {
   final String column;
   final bool primaryKey;
 
-  const Attr({this.type,this.column,this.primaryKey});
+  const Attr({this.type, this.column, this.primaryKey});
 }

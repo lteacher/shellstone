@@ -14,11 +14,13 @@ abstract class Chainable {
   }
 
   // Allows conveniently setting the operator, values and returning the result
-  dynamic _init(op,val,result) {
+  dynamic _init(op, val, result) {
     this.op = op;
 
-    if(val is List) this.values = val;
-    else this.values = []..add(val);
+    if (val is List)
+      this.values = val;
+    else
+      this.values = []..add(val);
 
     return result;
   }
@@ -70,10 +72,10 @@ class Constraint extends Chainable implements Constrainable, Runnable {
   Constraint(QueryChain chain) : super(chain);
 
   /// Takes an int [value] and returns a [new Constraint]
-  Constraint limit(int value) => _init('limit',value, new Constraint(_chain));
+  Constraint limit(int value) => _init('limit', value, new Constraint(_chain));
 
   /// Takes a [Function] [f] and returns a [QueryChain] which can then be ran
-  Runnable filter(f) => _init('filter',f, _chain);
+  Runnable filter(f) => _init('filter', f, _chain);
 
   /// Executes the [QueryChain.run] method
   Future run() => _run();
@@ -84,7 +86,7 @@ class Identifier extends Chainable {
   Identifier(QueryChain chain) : super(chain);
 
   /// Takes an [id] and returns the [QueryChain]
-  Runnable id(id) => _init('id',id, _chain);
+  Runnable id(id) => _init('id', id, _chain);
 }
 
 /// Defines a [Chainable] class which implements the [Query.where] method and [QueryChain.run]
@@ -92,7 +94,7 @@ class Query extends Chainable implements Runnable {
   Query(QueryChain chain) : super(chain);
 
   /// Takes a [List] OR single [fields] and returns the a [new Filter]
-  Filter where(fields) => _init('where',fields,new Filter(_chain));
+  Filter where(fields) => _init('where', fields, new Filter(_chain));
 
   /// Executes the [QueryChain.run] method
   Future run() => _run();
@@ -103,22 +105,22 @@ class Filter extends Chainable implements Filterable {
   Filter(QueryChain chain) : super(chain);
 
   /// Takes a single or list of values to check if *equals*
-  Condition eq(values) => _init('eq',values,new Condition(_chain));
+  Condition eq(values) => _init('eq', values, new Condition(_chain));
 
   /// Takes a single or list of values to check if *not equals*
-  Condition ne(values) => _init('ne',values,new Condition(_chain));
+  Condition ne(values) => _init('ne', values, new Condition(_chain));
 
   /// Takes a single or list of values to check if *greater than*
-  Condition gt(values) => _init('gt',values,new Condition(_chain));
+  Condition gt(values) => _init('gt', values, new Condition(_chain));
 
   /// Takes a single or list of values to check if *less than*
-  Condition lt(values) => _init('lt',values,new Condition(_chain));
+  Condition lt(values) => _init('lt', values, new Condition(_chain));
 
   /// Takes a single or list of values to check if *greater than or equal to*
-  Condition ge(values) => _init('ge',values,new Condition(_chain));
+  Condition ge(values) => _init('ge', values, new Condition(_chain));
 
   /// Takes a single or list of values to check if *less than or equal to*
-  Condition le(values) => _init('le',values,new Condition(_chain));
+  Condition le(values) => _init('le', values, new Condition(_chain));
 }
 
 /// Condition is [Chainable], inherits [Constraint.run], [Constraint.filter] and [Constraint.limit].
@@ -127,10 +129,10 @@ class Condition extends Constraint implements Selectable {
   Condition(QueryChain chain) : super(chain);
 
   /// Takes single or list of [fields] to set as a logical *and*
-  Filter and(fields) => _init('and',fields,new Filter(_chain));
+  Filter and(fields) => _init('and', fields, new Filter(_chain));
 
   /// Takes single or list of [fields] to set as a logical *or*
-  Filter or(fields) => _init('or',fields,new Filter(_chain));
+  Filter or(fields) => _init('or', fields, new Filter(_chain));
 }
 
 /// Represents the collection of [Chainable] objects in the query
@@ -172,29 +174,31 @@ class ModelAction {
     _chain = new QueryChain(this);
   }
 
-  dynamic _init(type,result) {
+  dynamic _init(type, result) {
     this.type = type;
     return result;
   }
 
   /// Get a single entity by providing an ID
-  Identifier get() => _init('get',new Identifier(_chain));
+  Identifier get() => _init('get', new Identifier(_chain));
 
   /// Find a single entity
-  Query find() => _init('find',new Query(_chain));
+  Query find() => _init('find', new Query(_chain));
 
   /// Find a collection of entities
-  Query findAll() => _init('findAll',new Query(_chain));
+  Query findAll() => _init('findAll', new Query(_chain));
 
   /// Insert a single entity
-  Query insert(dynamic entity) => _init('insert',new Query(_chain));
+  Query insert(dynamic entity) => _init('insert', new Query(_chain));
 
   /// Insert a collection of entities
-  Query insertAll(List<dynamic> entities) => _init('insertAll',new Query(_chain));
+  Query insertAll(List<dynamic> entities) =>
+      _init('insertAll', new Query(_chain));
 
   /// Update a given entity
-  Query update(dynamic entity) => _init('update',new Query(_chain));
+  Query update(dynamic entity) => _init('update', new Query(_chain));
 
   /// Update a collection of entities
-  Query updateAll(List<dynamic> entities) => _init('updateAll',new Query(_chain));
+  Query updateAll(List<dynamic> entities) =>
+      _init('updateAll', new Query(_chain));
 }

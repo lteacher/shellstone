@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import '../lib/shellstone.dart';
+import 'setups.dart';
 
 main() {
   setUp(() {
@@ -8,12 +9,12 @@ main() {
   });
 
   group('Metadata', () {
-    test('new Metadata().model(name) returns a ModelProxy object', () {
-      expect(proxy, new isInstanceOf<ModelProxy>());
+    test('Metadata.proxy(name) returns a ModelProxy object', () {
+      expect(Metadata.proxy('User'), new isInstanceOf<ModelProxy>());
     });
 
-    test('new ModelProxy.model has a reference to the Model class', () {
-      expect(model, new isInstanceOf<Model>());
+    test('Metadata.model(name) has a reference to the Model class', () {
+      expect(Metadata.model('User'), new isInstanceOf<Model>());
     });
 
     test('Model.indentity can be retrieved', () {
@@ -24,23 +25,30 @@ main() {
       expect(model.autoCreatedAt, equals(true));
     });
 
-    test('ModelProxy attributes return an Attr class', () {
-      expect(attr('username'), new isInstanceOf<Attr>());
+    test('Metadata.attr(name) returns an Attr class', () {
+      expect(Metadata.attr('User')['username'], new isInstanceOf<Attr>());
     });
 
     test('Attr types can be retrieved', () {
-      expect(attr('username').type, equals('string'));
+      expect(Metadata.attr('User')['username'].type, equals('string'));
     });
+
+    test('Model name can be determined by passing an entity type', () {
+      var user = new User();
+      expect(Metadata.name(user), equals('User'));
+    });
+
+    test('Model name can be determined by passing an entity List', () {
+      List user = [new User()];
+      expect(Metadata.name(user), equals('User'));
+    });
+
+    // Cant get this one to match for some reason
+    // test('Unknown Model type throws error', () {
+    //   expect(Metadata.name(const Symbol('Explode')), throws);
+    // });
   });
 }
 
-get proxy =>  new Metadata().model('User');
-get model =>  proxy.model;
-attr(name) => proxy.attributes[name];
-
-@Model(identity: 'user', autoCreatedAt: true, autoUpdatedAt: true)
-class User {
-  @Attr(type: 'integer') int id;
-  @Attr(type: 'string') String username;
-  @Attr(type: 'string') String password;
-}
+get model =>  Metadata.model('User');
+attr(name) => Metadata.attr('User')[name];

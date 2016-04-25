@@ -25,3 +25,9 @@ class User {
 }
 
 ```
+
+The query language structure looks something like the following:
+
+```dart
+Model.find('User').where(['username','password']).eq(['bill','12345']).run();
+```

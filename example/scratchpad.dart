@@ -2,11 +2,26 @@ import '../lib/shellstone.dart';
 
 @Model()
 class User {
-  @Attr(type: 'string') String name;
+  @Attr(type: 'string', column: 'FullName') String name;
+  @Attr() int count;
+
+  doStuff() {
+
+  }
 }
 
 main() {
   Shellstone.start();
+
+  // Model.find('User').where(['username','password']).eq(['bill','12345']).run();
+
+  // User user = EntityBuilder.create('User',{const Symbol('name'):'Jimmah'});
+  //
+  // Map wrapped = Metadata.wrap(user);
+
+  User user = Metadata.unwrap('User',{'FullName':'Billy Bob'});
+
+  print(user.name);
 }
 
 
