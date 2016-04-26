@@ -12,45 +12,40 @@ main() {
       expect(Model.get('User').id(123),new isInstanceOf<Runnable>());
     });
 
-    test('Model.find(model:String) Returns a Query', () {
-      expect(Model.find('User'),new isInstanceOf<Query>());
+    test('Model.find(model:String) Returns a SingleResultQuery', () {
+      expect(Model.find('User'),new isInstanceOf<SingleResultQuery>());
     });
 
-    test('Model.findAll(model:String) Returns a Query', () {
-      expect(Model.findAll('User'),new isInstanceOf<Query>());
+    test('Model.findAll(model:String) Returns a MultipleResultQuery', () {
+      expect(Model.findAll('User'),new isInstanceOf<MultipleResultQuery>());
     });
 
-    test('Model.find(model:String).where(columns) Returns Filterable & !Runnable', () {
+    test('Model.find(model:String).where(columns) returns a Filter and !Runnable', () {
       expect(Model.find('User').where(['firstName']),allOf([
-        new isInstanceOf<Filterable>(),
+        new isInstanceOf<Filter>(),
         isNot(new isInstanceOf<Runnable>())
       ]));
     });
 
-    test('Model.find(model:String).where(columns).eq(values) Returns Runnable, Selectable & !Filterable', () {
-      expect(Model.find('User').where(['firstName']).eq('Bill'),allOf([
+    test('Model.find(model:String).where(column).eq(values) returns Selector or Modifier + Runnable', () {
+      expect(Model.find('User').where('firstName').eq('Bill'),allOf([
+        new isInstanceOf<SingleResultSelector>(),
+        new isInstanceOf<SingleResultModifier>(),
         new isInstanceOf<Runnable>(),
-        new isInstanceOf<Selectable>(),
-        isNot(new isInstanceOf<Filterable>())
       ]));
     });
 
-    test('Model.find(model:String).where(columns).eq(values).limit(n) Returns Runnable or Constrainable', () {
-      expect(Model.find('User').where(['firstName']).eq('Bill').limit(10),allOf([
+    test('Model.find(model:String).where(column).eq(values).limit(n) returns only a Modifier + Runnable', () {
+      expect(Model.find('User').where(['firstName']).eq(['Bill']).limit(9),allOf([
+        new isInstanceOf<Modifier>(),
         new isInstanceOf<Runnable>(),
-        new isInstanceOf<Constrainable>(),
-        isNot(new isInstanceOf<Selectable>()),
-        isNot(new isInstanceOf<Filterable>())
+        isNot(new isInstanceOf<Selector>()),
+        isNot(new isInstanceOf<Filter>()),
       ]));
     });
 
-    // test('Model.insert(dynamic:Model) Returns a Query', () {
-    //   expect(Model.insert('User'),new isInstanceOf<Query>());
-    // });
-    //
-    // test('Model.insertAll(dynamic:Model) Returns a Query', () {
-    //   expect(Model.insertAll('User'),new isInstanceOf<Query>());
-    // });
-
+    test('Model.findAll(model:String) Returns a MultipleResultQuery', () {
+      expect(Model.findAll('User'),new isInstanceOf<MultipleResultQuery>());
+    });
   });
 }

@@ -27,16 +27,16 @@ class User {
 //   @Attr(type: 'string') String lastName;
 // }
 
-main() async {
-  // Setup Shellstone
-  await Shellstone.setup();
-
-  // Get the first user where it matches the query
-  User user = await Model.find('User').where('username').eq('1234').run();
-
-  // Get user using filter
-  user = await Model.find('User').filter((user) => user.lastName == 'Smith').run();
-
-  // Find all users
-  Stream<User> users = await Model.findAll('User').run();
-}
+// main() async {
+//   // Setup Shellstone
+//   await Shellstone.setup();
+//
+//   // Get the first user where it matches the query
+//   User user = await Model.find('User').where('username').eq('1234').run();
+//
+//   // Get user using filter
+//   user = await Model.find('User').filter((user) => user.lastName == 'Smith').run();
+//
+//   // Find all users
+//   Stream<User> users = await Model.findAll('User').run();
+// }
