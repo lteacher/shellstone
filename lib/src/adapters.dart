@@ -6,7 +6,7 @@ part of shellstone;
 /// after this the [QueryAdapter.mapToken] method is called repeatedly
 /// for each chainable in the [QueryChain].
 abstract class QueryAdapter implements Runnable {
-  DatabaseAdapter db; // Will be injectd by the framework
+  dynamic db; // Will be injectd by the framework
 
   final String action;
   final String resource;

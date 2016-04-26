@@ -20,25 +20,25 @@ class Model {
   static Identifier get(name) => new ModelAction(name).get();
 
   /// The [find] method is used to find a *single*, or the *first* matching entity
-  static Query find(name) => new ModelAction(name).find();
+  static SingleResultQuery find(name) => new ModelAction(name).find();
 
   /// The [findAll] method is used to find a *all* matching entites
-  static Query findAll(name) => new ModelAction(name).findAll();
+  static MultipleResultQuery findAll(name) => new ModelAction(name).findAll();
 
   /// The [insert] method is used to insert a given entity
-  static Query insert(entity) =>
+  static SingleResultQuery insert(entity) =>
       new ModelAction(Metadata.name(entity)).insert(entity);
 
   /// The [insertAll] method inserts all the entities in the collection
-  static Query insertAll(List entities) =>
+  static SingleResultQuery insertAll(List entities) =>
       new ModelAction(Metadata.name(entities)).insertAll(entities);
 
   /// The [update] method is used to update an entity if it exists
-  static Query update(entity) =>
+  static SingleResultQuery update(entity) =>
       new ModelAction(Metadata.name(entity)).insert(entity);
 
   /// The [updateAll] method updates all of the entities in the [entities] colllection
-  static Query updateAll(List entities) =>
+  static SingleResultQuery updateAll(List entities) =>
       new ModelAction(Metadata.name(entities)).insertAll(entities);
 }
 
