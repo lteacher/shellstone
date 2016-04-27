@@ -5,6 +5,7 @@
 > features.
 
 [![Build Status](https://api.travis-ci.org/lessonteacher/shellstone.svg?branch=master)](https://travis-ci.org/lessonteacher/shellstone)
+[![Join the chat at https://gitter.im/lessonteacher/shellstone](https://badges.gitter.im/lessonteacher/shellstone.svg)](https://gitter.im/lessonteacher/shellstone?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 _**Note**: This is a currently a WIP. There is a milestone to track the first usable
 release so if you want to contribute I will be trying very hard to make that easy. In the development phase I will leave the below heading and description until clearer, finalised documentation can be provided in its stead_
