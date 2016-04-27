@@ -1,5 +1,7 @@
 # Shellstone
 
+[![Join the chat at https://gitter.im/lessonteacher/shellstone](https://badges.gitter.im/lessonteacher/shellstone.svg)](https://gitter.im/lessonteacher/shellstone?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 > Inspired by Shelf, Redstone and js frameworks like Sails. Shellstone is a
 > framework to simplify server development via auto routing, ORM and other
 > features.
