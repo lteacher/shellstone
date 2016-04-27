@@ -45,10 +45,24 @@ main() {
 
     // Cant get this one to match for some reason
     // test('Unknown Model type throws error', () {
-    //   expect(Metadata.name(const Symbol('Explode')), throws);
+    //   expect(Metadata.name(const Symbol('Explode')), throwsA(new isInstanceOf<Exception>()));
     // });
+
+    test('Metadata.adapter(name) returns the metadata of type DBAdapter', () {
+      expect(Metadata.adapter('mongo'), new isInstanceOf<DBAdapter>());
+    });
+
+    test('Metadata.handlers(name)[handler] returns a handler', () {
+      expect(Metadata.handlers('mongo')['configure'], new isInstanceOf<DBEventHandler>());
+    });
+
+    test('Event handlers are executable', () {
+      var f = handler('configure');
+      expect(f(23), null);
+    });
   });
 }
 
 get model =>  Metadata.model('User');
 attr(name) => Metadata.attr('User')[name];
+handler(name) => Metadata.handlers('mongo')[name];

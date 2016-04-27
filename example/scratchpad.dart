@@ -7,27 +7,18 @@ class User {
   @Attr(type: 'string', column: 'fullName') String name;
 }
 
+@DBAdapter('mongo')
+class MongoAdapter {
+  @configure setCredentials() {}
+  @connect createPool(String adapter) {}
+  @build createTables(adapter) {}
+  @query notifySomething(adapter) {}
+  @disconnect @error cleanup(adapter) {}
+}
+
 main() async {
   Shellstone.setup();
 
-  // Stream<Row> results = await Model.find('User').where(['username','password']).eq(['bill','12345']).run();
-  //
-  // print(results);
-  //
-  // results.forEach((row) {
-  //   print(row[0]);
-  // });
-
-  // Model.find('User').where('firstName').filter(f).run().
-  // Model.findAll('User').where('firstName').
-
-  // User user = EntityBuilder.create('User',{const Symbol('name'):'Jimmah'});
-  //
-  // Map wrapped = Metadata.wrap(user);
-
-  // User user = Metadata.unwrap('User',{'FullName':'Billy Bob'});
-
-  // print(user.name);
 }
 
 // Javascript Examples

@@ -10,8 +10,10 @@ class Model {
   final bool autoCreatedAt;
   final bool autoUpdatedAt;
 
-  const Model(
-      this.resource, {this.dataSource:'mysql', this.autoCreatedAt:true, this.autoUpdatedAt:true});
+  const Model(this.resource,
+      {this.dataSource: 'mysql',
+      this.autoCreatedAt: true,
+      this.autoUpdatedAt: true});
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///
@@ -54,3 +56,65 @@ class Attr {
 
   const Attr({this.type, this.column, this.primaryKey});
 }
+
+/// An annotation to indicate the existence of a Database Adapter
+///
+/// Database Adapters correspond to the [DatabaseAdapter] class and provide the
+/// capability to make adjustments at runtime to the provided Database Adapters.
+/// actually if your class extends the [DatabaseAdapter] then it will be used
+/// as a drop in replacement, whereas otherwise it need annotations for each
+/// event handler
+class DBAdapter {
+  final String name;
+
+  /// The [name] is the database name, for exampe 'mongo' or 'mysql' etc
+  const DBAdapter(this.name);
+}
+
+/// Abstract Event annotation class
+abstract class DBEventMeta {
+  final String name; // Might not need this but just to be safe
+
+  const DBEventMeta([this.name]);
+}
+
+/// An annotation to indicate a database event called 'configure'
+class ConfigureMeta extends DBEventMeta {
+  const ConfigureMeta() : super('configure');
+}
+
+const configure = const ConfigureMeta();
+
+/// An annotation to indicate a database event called 'connect'
+class ConnectMeta extends DBEventMeta {
+  const ConnectMeta() : super('connect');
+}
+
+const connect = const ConnectMeta();
+
+/// An annotation to indicate a database event called 'build'
+class BuildMeta extends DBEventMeta {
+  const BuildMeta() : super('build');
+}
+const build = const BuildMeta();
+
+/// An annotation to indicate a database event called 'query'
+class QueryMeta extends DBEventMeta {
+  const QueryMeta() : super('query');
+}
+
+const query = const QueryMeta();
+
+/// An annotation to indicate a database event called 'disconnect'
+class DisconnectMeta extends DBEventMeta {
+  const DisconnectMeta() : super('disconnect');
+}
+
+const disconnect = const DisconnectMeta();
+
+/// An annotation to indicate a database event called 'error'
+class ErrorMeta extends DBEventMeta {
+  const ErrorMeta() : super('error');
+}
+
+const error = const ErrorMeta();

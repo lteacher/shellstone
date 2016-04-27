@@ -2,7 +2,7 @@ library shellstone;
 
 import 'dart:async';
 import 'dart:mirrors';
-import 'package:smoke/smoke.dart';
+import 'package:smoke/smoke.dart' as smoke;
 import 'package:sqljocky/sqljocky.dart';
 
 part 'src/startup.dart';

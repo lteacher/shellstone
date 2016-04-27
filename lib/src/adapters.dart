@@ -1,5 +1,9 @@
 part of shellstone;
 
+/// Defines the type that will be used to match the annotated handlers
+// typedef DBEventHandler<T extends DatabaseAdapter, QueryAdapter>(T adapter);
+typedef DBEventHandler(adapter);
+
 /// Used by a DB adapter to map a Shellstone query for mapping to the underlying query
 ///
 /// The [QueryAdapter] is created with a given action, such as `find`
