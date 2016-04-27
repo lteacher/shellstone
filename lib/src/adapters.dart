@@ -1,9 +1,5 @@
 part of shellstone;
 
-/// Defines the type that will be used to match the annotated handlers
-// typedef DBEventHandler<T extends DatabaseAdapter, QueryAdapter>(T adapter);
-typedef DBEventHandler(adapter);
-
 /// Used by a DB adapter to map a Shellstone query for mapping to the underlying query
 ///
 /// The [QueryAdapter] is created with a given action, such as `find`
@@ -26,8 +22,23 @@ abstract class QueryAdapter implements Runnable {
 /// some connection state since the [QueryAdapter] only lives as long as the query
 /// so each new query will have access to the database adapter via [Shellstone.adapters]
 abstract class DatabaseAdapter {
-  DatabaseAdapter() {}
-  DatabaseAdapter.configure();
+  Map<String,dynamic> parms = new Map();
+  dynamic conn;
+  String user;
+  String password;
+  String host;
+  int port;
+
+  DatabaseAdapter();
+
+  /// Connect to the database
+  Future connect();
+
+  /// Build any relevant tables, uses the shellstone metadata
+  Future build();
+
+  // Disconnect the database
+  Future disconnect();
 
   /// Called to get a [QueryAdapter] instance for a database implementation.
   ///
@@ -35,49 +46,18 @@ abstract class DatabaseAdapter {
   QueryAdapter getQueryAdapter(String action, String resource);
 }
 
-/// TODO: A database adapter for mongodb
-class MongoDatabaseAdapter extends DatabaseAdapter {
-  MongoDatabaseAdapter.configure() {}
-
-  getQueryAdapter(action, resource) => new MongoQueryAdapter(action, resource);
-}
-
-// <=======================================================================
-// For now I am going to jam some adapters into this and see how it fits
-// <=======================================================================
-class MongoQueryAdapter extends QueryAdapter {
-  MongoQueryAdapter(action, resource) : super(action, resource);
-
-  mapToken(QueryToken token) {}
-
-  run() {}
-}
-
-/// TODO: A database adapter for mysql
-class MysqlDatabaseAdapter extends DatabaseAdapter {
-  ConnectionPool pool;
-
-  MysqlDatabaseAdapter.configure() {
-    pool = new ConnectionPool(
-        host: 'localhost',
-        port: 3306,
-        user: 'root',
-        password: 'root',
-        db: 'shellstone',
-        max: 5);
+// A mockup adapter
+class MockDatabaseAdapter extends DatabaseAdapter {
+  MockDatabaseAdapter() {
+    user = 'fakeUser';
+    password = '123413';
   }
 
-  getQueryAdapter(action, resource) => new MysqlQueryAdapter(action, resource);
-}
+  configure() {}
+  connect() {}
+  build() {}
+  disconnect() {}
 
-class MysqlQueryAdapter extends QueryAdapter {
-  MysqlQueryAdapter(action, resource) : super(action, resource);
-
-  mapToken(QueryToken token) {
-    print(token);
-  }
-
-  run() async {
-    return db.pool.query('select * from User');
-  }
+  // Returns nothing
+  getQueryAdapter(action,resource) {}
 }

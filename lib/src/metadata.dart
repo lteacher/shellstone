@@ -14,8 +14,9 @@ class Metadata {
   Metadata._internal();
   MetadataScanner _scanner;
 
-  /// Returns the [ModelProxy] for some given [name]
-  static ModelProxy proxy(String name) => _modelProxy(name);
+  /// Returns a [MetaProxy] for some given [name]
+  static MetaProxy proxy(String type, String name) =>
+      type == 'model' ? _modelProxy(name) : _adapterProxy(name);
 
   /// Lookup a [Model] object by [name]
   static Model model(String name) => _modelProxy(name).model;
@@ -38,7 +39,15 @@ class Metadata {
   static DBAdapter adapter(String name) => _adapterProxy(name).adapter;
 
   /// Returns the [DBAdapter] @event handlers for a given adapter [name]
-  static Map<String, dynamic> handlers(String name) => _adapterProxy(name).dependents;
+  static Map<String, dynamic> handlers(String name) =>
+      _adapterProxy(name).dependents;
+
+  /// Tests the existence of some kind of metadata
+  static bool exists(String type, String name) {
+    return type == 'model'
+        ? _meta._scanner.models.containsKey(name)
+        : _meta._scanner.adapters.containsKey(name);
+  }
 
   /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
   /// form as a map of key values.

@@ -1,18 +1,17 @@
 import '../lib/shellstone.dart';
-import 'package:sqljocky/sqljocky.dart';
-import 'dart:async';
+// import 'package:sqljocky/sqljocky.dart';
+// import 'dart:async';
 
 @Model('User')
 class User {
   @Attr(type: 'string', column: 'fullName') String name;
 }
 
-@DBAdapter('mongo')
-class MongoAdapter {
-  @configure setCredentials() {}
-  @connect createPool(String adapter) {}
+@DBAdapter('mock')
+class MockAdapter {
+  @configure setCredentials(adapter) {}
+  @connect createPool(adapter) {}
   @build createTables(adapter) {}
-  @query notifySomething(adapter) {}
   @disconnect @error cleanup(adapter) {}
 }
 

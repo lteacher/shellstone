@@ -98,12 +98,12 @@ class BuildMeta extends DBEventMeta {
 }
 const build = const BuildMeta();
 
-/// An annotation to indicate a database event called 'query'
-class QueryMeta extends DBEventMeta {
-  const QueryMeta() : super('query');
-}
-
-const query = const QueryMeta();
+// /// An annotation to indicate a database event called 'query'
+// class QueryMeta extends DBEventMeta {
+//   const QueryMeta() : super('query');
+// }
+// 
+// const query = const QueryMeta();
 
 /// An annotation to indicate a database event called 'disconnect'
 class DisconnectMeta extends DBEventMeta {

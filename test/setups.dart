@@ -18,10 +18,12 @@ class Person {
 
 @DBAdapter('mongo')
 class MongoAdapter {
-  @configure setCredentials(adapter) {}
+  @configure setCredentials(adapter) {
+    adapter.user = 'Bill';
+    adapter.password = 'Wow';
+  }
   @connect createPool(adapter) {}
   @build createTables(adapter) {}
-  @query notifySomething(adapter) {}
   @disconnect @error cleanup(adapter) {}
 }
 

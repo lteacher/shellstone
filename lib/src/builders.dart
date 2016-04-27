@@ -9,7 +9,7 @@ class EntityBuilder {
   /// Instantiates a given model [name] potentially setting the [fields]
   /// the fields in this case match the fields on the object specifically
   static dynamic create(String name, [Map<Symbol, dynamic> fields]) {
-    var proxy = Metadata.proxy(name);
+    var proxy = Metadata.proxy('model',name);
 
     /// Construct an instance with default constructor.
     var instance =

@@ -10,7 +10,7 @@ main() {
 
   group('Metadata', () {
     test('Metadata.proxy(name) returns a ModelProxy object', () {
-      expect(Metadata.proxy('User'), new isInstanceOf<ModelProxy>());
+      expect(Metadata.proxy('model','User'), new isInstanceOf<ModelProxy>());
     });
 
     test('Metadata.model(name) has a reference to the Model class', () {
@@ -58,7 +58,7 @@ main() {
 
     test('Event handlers are executable', () {
       var f = handler('configure');
-      expect(f(23), null);
+      expect(f(new MockDatabaseAdapter()), null);
     });
   });
 }
