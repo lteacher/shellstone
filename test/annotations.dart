@@ -31,6 +31,10 @@ main() {
     test('@Attr(column:String) sets an attribute column', () {
       expect(attr('username').column,equals('user_name'));
     });
+
+    test('@DBAdapter(name) sets the adapter name', () {
+      expect(dbAdapter.name,equals('mongo'));
+    });
   });
 }
 
@@ -40,3 +44,4 @@ dynamic attr(name) {
   var att = reflectClass(User).declarations[new Symbol(name)]; //metadata.first.reflectee;
   return att.metadata.first.reflectee;
 }
+dynamic get dbAdapter => reflectClass(MongoAdapter).metadata.first.reflectee;

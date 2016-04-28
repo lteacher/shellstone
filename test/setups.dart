@@ -15,3 +15,25 @@ class Person {
   @Attr(type: 'string', column: 'LastName') String lastName;
   @Attr(type: 'integer', column: 'Age') String age;
 }
+
+@DBAdapter('mongo')
+class MongoAdapter {
+  @configure setCredentials(adapter) {
+    adapter.user = 'Bill';
+    adapter.password = 'Wow';
+  }
+  @connect createPool(adapter) {}
+  @build createTables(adapter) {}
+  @disconnect @error cleanup(adapter) {}
+}
+
+@DBAdapter('mysql')
+class MysqlAdapter extends DatabaseAdapter {
+  configure() {}
+  connect() {}
+  build() {}
+  query() {}
+  disconnect() {}
+
+  getQueryAdapter(action,resource) { }
+}

@@ -14,14 +14,15 @@ class Metadata {
   Metadata._internal();
   MetadataScanner _scanner;
 
-  /// Returns the [ModelProxy] for some given [name]
-  static ModelProxy proxy(String name) => _proxy(name);
+  /// Returns a [MetaProxy] for some given [name]
+  static MetaProxy proxy(String type, String name) =>
+      type == 'model' ? _modelProxy(name) : _adapterProxy(name);
 
   /// Lookup a [Model] object by [name]
-  static Model model(String name) => _proxy(name).model;
+  static Model model(String name) => _modelProxy(name).model;
 
   /// Returns the attributes Map for the model [name]
-  static Map<String, Attr> attr(String name) => _proxy(name).attributes;
+  static Map<String, Attr> attr(String name) => _modelProxy(name).dependents;
 
   /// Returns the name for the entity or list of entities
   static String name(dynamic entity) {
@@ -29,16 +30,29 @@ class Metadata {
 
     ClassMirror m = reflect(entity).type;
     var name = MirrorSystem.getName(m.simpleName);
-    var proxy = _proxy(name); // Trigger a exception if non-existent
+    var proxy = _modelProxy(name); // Trigger a exception if non-existent
 
     return name;
+  }
+
+  /// Returns the [DBAdapter] metadata by [name]
+  static DBAdapter adapter(String name) => _adapterProxy(name).adapter;
+
+  /// Returns the [DBAdapter] @event handlers for a given adapter [name]
+  static Map<String, dynamic> handlers(String name) =>
+      _adapterProxy(name).dependents;
+
+  /// Tests the existence of some kind of metadata
+  static bool exists(String type, String name) {
+    return type == 'model'
+        ? _meta._scanner.models.containsKey(name)
+        : _meta._scanner.adapters.containsKey(name);
   }
 
   /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
   /// form as a map of key values.
   static Map<String, dynamic> wrap(dynamic entity) =>
       new EntityWrapper(entity: entity).wrap();
-
 
   /// Unwraps an entity from its mapped [Model] form.
   static dynamic unwrap(String name, Map<String, dynamic> map) =>
@@ -50,25 +64,46 @@ class Metadata {
     _scanner = new MetadataScanner._scan();
   }
 
-  // Utility to retrieve the proxy out
-  static _proxy(name) {
+  // Utility to retrieve a Model proxy out
+  static _modelProxy(name) {
     var proxy = _meta._scanner.models[name];
 
     return proxy != null ? proxy : throw 'Unknown model type $name';
   }
+
+  // Utility to retrieve an Adapter proxy out
+  static _adapterProxy(name) {
+    var proxy = _meta._scanner.adapters[name];
+
+    return proxy != null ? proxy : throw 'Unknown adapter $name';
+  }
 }
 
-/// Wraps a model by combining the model, reflectee and attributes
-class ModelProxy {
+abstract class MetaProxy {
   ClassMirror ref;
+  Map<String, dynamic> dependents = new Map();
+  MetaProxy(this.ref);
+}
+
+/// Wraps a model by combining the [Model], reflectee and [Attr]ibutes
+class ModelProxy extends MetaProxy {
   Model model;
-  Map<String, Attr> attributes = new Map();
-  ModelProxy(this.ref, this.model);
+  ModelProxy(ref, this.model) : super(ref);
+}
+
+/// Wraps a adapter by combining the [DBAdapter], reflectee and [DBEventMeta]
+class AdapterProxy extends MetaProxy {
+  DBAdapter adapter;
+  InstanceMirror instance;
+  AdapterProxy(ref, this.adapter) : super(ref) {
+    instance = ref.newInstance(const Symbol(''), new List());
+  }
 }
 
 /// Scans the mirror system looking for Shellstone annotations
 class MetadataScanner {
   Map<String, ModelProxy> models = new Map();
+  Map<String, AdapterProxy> adapters = new Map();
 
   MetadataScanner._scan() {
     var mirrorSystem = currentMirrorSystem();
@@ -87,7 +122,7 @@ class MetadataScanner {
   }
 
   // Extract metadata out
-  _extractMetadata(Symbol sym, DeclarationMirror m, [ModelProxy proxy]) {
+  _extractMetadata(Symbol sym, DeclarationMirror m, [proxy]) {
     var name = MirrorSystem.getName(sym);
     var meta = m.metadata;
 
@@ -97,19 +132,47 @@ class MetadataScanner {
     // Should be compiler error for lack of reflectee outside
     var reflectee = meta.first.reflectee;
 
-    // Found a Model here
-    if (reflectee is Model) {
-      if (models.containsKey(name))
-        throw 'Duplicate model defined with name `$name`';
-
-      models[name] = new ModelProxy(m, reflectee);
-
-      // Recursively add the add attributes
-      ClassMirror cl = m;
-      cl.declarations.forEach((s, d) => _extractMetadata(s, d, models[name]));
-    } else if (reflectee is Attr) {
-      proxy.attributes[name] = reflectee;
+    if (reflectee is Model || reflectee is DBAdapter)
+      _addProxy(name, m, reflectee);
+    if (reflectee is Attr) proxy.dependents[name] = reflectee;
+    if (reflectee is DBEventMeta) {
+      proxy.dependents[reflectee.name] = _getEventMethod(proxy.instance, sym);
     }
+  }
+
+  // Returns an annotated method for an event
+  _getEventMethod(InstanceMirror obj, Symbol name) {
+    var method = obj.getField(name).reflectee;
+    return method is DBEventHandler
+        ? method
+        : throw 'The annotated method `${MirrorSystem.getName(name)}` is not a valid handler';
+  }
+
+  // Convenience method to add a metadata proxy, and reflectee to a collection
+  Map _addProxy(name, m, r) {
+    var map;
+    MetaProxy proxy;
+
+    if (r.runtimeType == Model) {
+      map = models;
+      proxy = new ModelProxy(m, r);
+    }
+    if (r.runtimeType == DBAdapter) {
+      map = adapters;
+      name = r.name;
+      proxy = new AdapterProxy(m, r);
+    }
+
+    if (map.containsKey(name))
+      throw 'Duplicate ${m.runtimeType.toString()} defined with name `$name`';
+
+    map[name] = proxy;
+
+    // Recursively add the add attributes
+    ClassMirror cl = m;
+    cl.declarations.forEach((s, d) => _extractMetadata(s, d, proxy));
+
+    return map;
   }
 
   // Check if a lib is scannable

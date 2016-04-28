@@ -9,7 +9,7 @@ class EntityBuilder {
   /// Instantiates a given model [name] potentially setting the [fields]
   /// the fields in this case match the fields on the object specifically
   static dynamic create(String name, [Map<Symbol, dynamic> fields]) {
-    var proxy = Metadata.proxy(name);
+    var proxy = Metadata.proxy('model',name);
 
     /// Construct an instance with default constructor.
     var instance =
@@ -18,7 +18,7 @@ class EntityBuilder {
     // If fields are provided then we will set them here
     if (fields != null)
       fields.forEach((field, value) {
-      write(instance, field, value);
+      smoke.write(instance, field, value);
     });
 
     return instance;
@@ -55,7 +55,7 @@ class EntityWrapper {
 
       // Set the property name
       var property = attr.column != null ? attr.column : field;
-      var value = read(entity, new Symbol(field));
+      var value = smoke.read(entity, new Symbol(field));
 
       // If the value is not null set it
       if (value != null) result[property] = _coerceType(attr.type, value);
@@ -73,7 +73,7 @@ class EntityWrapper {
       if (field != null) {
         var type = _getType(field);
 
-        write(entity, new Symbol(field), _coerceType(type,value));
+        smoke.write(entity, new Symbol(field), _coerceType(type,value));
       }
     });
 
@@ -112,13 +112,13 @@ class EntityWrapper {
 
   // Get the fields of an object in string form
   Iterable get _fields {
-    return query(entity.runtimeType, const QueryOptions())
-        .map((f) => symbolToName(f.name));
+    return smoke.query(entity.runtimeType, const smoke.QueryOptions())
+        .map((f) => smoke.symbolToName(f.name));
   }
 
-  // Ugh, get a field type out via query
+  // Ugh, get a field type out via smoke.query
   String _getType(field) {
-    var result = query(entity.runtimeType, new QueryOptions(matches: (Symbol name) {
+    var result = smoke.query(entity.runtimeType, new smoke.QueryOptions(matches: (Symbol name) {
       return name == new Symbol(field);
     }));
 
