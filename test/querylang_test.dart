@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import '../lib/shellstone.dart';
+import 'package:shellstone/shellstone.dart';
 
 main() {
   group('Query Language', () {

@@ -1,11 +1,11 @@
 import 'package:test/test.dart';
-import '../lib/shellstone.dart';
-import 'setups.dart';
+import 'package:shellstone/shellstone.dart';
+import 'test_setups.dart';
 
 main() {
   setUp(() {
     // Start shellstone to setup any annotations
-    Shellstone.setup();
+    strapIn();
   });
 
   group('Builders', () {
