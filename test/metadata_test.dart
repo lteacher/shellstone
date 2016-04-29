@@ -1,16 +1,16 @@
 import 'package:test/test.dart';
-import '../lib/shellstone.dart';
-import 'setups.dart';
+import 'package:shellstone/shellstone.dart';
+import 'test_setups.dart';
 
 main() {
   setUp(() {
     // Start shellstone to setup any annotations
-    Shellstone.setup();
+    strapIn();
   });
 
   group('Metadata', () {
     test('Metadata.proxy(name) returns a ModelProxy object', () {
-      expect(Metadata.proxy('model','User'), new isInstanceOf<ModelProxy>());
+      expect(Metadata.get(Model,'User'), new isInstanceOf<ModelMetadata>());
     });
 
     test('Metadata.model(name) has a reference to the Model class', () {
@@ -47,22 +47,8 @@ main() {
     // test('Unknown Model type throws error', () {
     //   expect(Metadata.name(const Symbol('Explode')), throwsA(new isInstanceOf<Exception>()));
     // });
-
-    test('Metadata.adapter(name) returns the metadata of type DBAdapter', () {
-      expect(Metadata.adapter('mongo'), new isInstanceOf<DBAdapter>());
-    });
-
-    test('Metadata.handlers(name)[handler] returns a handler', () {
-      expect(Metadata.handlers('mongo')['configure'], new isInstanceOf<DBEventHandler>());
-    });
-
-    test('Event handlers are executable', () {
-      var f = handler('configure');
-      expect(f(new MockDatabaseAdapter()), null);
-    });
   });
 }
 
 get model =>  Metadata.model('User');
 attr(name) => Metadata.attr('User')[name];
-handler(name) => Metadata.handlers('mongo')[name];

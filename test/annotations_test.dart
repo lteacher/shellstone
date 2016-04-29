@@ -1,6 +1,6 @@
 import 'dart:mirrors';
 import 'package:test/test.dart';
-import 'setups.dart';
+import 'test_setups.dart';
 
 main() {
   group('Annotations', () {
@@ -32,7 +32,7 @@ main() {
       expect(attr('username').column,equals('user_name'));
     });
 
-    test('@DBAdapter(name) sets the adapter name', () {
+    test('@Adapter(name) sets the adapter name', () {
       expect(dbAdapter.name,equals('mongo'));
     });
   });

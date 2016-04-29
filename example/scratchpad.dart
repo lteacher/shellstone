@@ -5,19 +5,14 @@ import '../lib/shellstone.dart';
 @Model('User')
 class User {
   @Attr(type: 'string', column: 'fullName') String name;
-}
-
-@DBAdapter('mock')
-class MockAdapter {
-  @configure setCredentials(adapter) {}
-  @connect createPool(adapter) {}
-  @build createTables(adapter) {}
-  @disconnect @error cleanup(adapter) {}
+  @Attr(type: 'string', column: 'faceThingo') String faceThingo;
 }
 
 main() async {
-  Shellstone.setup();
+  strapIn();
 
+  var result = Metadata.wrap(new User()..name = 'Bill');
+  var user = Metadata.unwrap('User', result);
 }
 
 // Javascript Examples

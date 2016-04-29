@@ -1,4 +1,4 @@
-import '../lib/shellstone.dart';
+import 'package:shellstone/shellstone.dart';
 
 // Used to contain any setup specific files, for example Model definitions
 @Model('user', dataSource: 'mongo', autoCreatedAt: true, autoUpdatedAt: true)
@@ -16,24 +16,15 @@ class Person {
   @Attr(type: 'integer', column: 'Age') String age;
 }
 
-@DBAdapter('mongo')
-class MongoAdapter {
-  @configure setCredentials(adapter) {
-    adapter.user = 'Bill';
-    adapter.password = 'Wow';
-  }
-  @connect createPool(adapter) {}
-  @build createTables(adapter) {}
-  @disconnect @error cleanup(adapter) {}
-}
+@Adapter('mongo')
+class MongoAdapter extends DatabaseAdapter {
 
-@DBAdapter('mysql')
-class MysqlAdapter extends DatabaseAdapter {
+  get name => 'mongo';
+  get driver { }
+
   configure() {}
   connect() {}
   build() {}
-  query() {}
   disconnect() {}
-
-  getQueryAdapter(action,resource) { }
+  execute(chain) {}
 }
