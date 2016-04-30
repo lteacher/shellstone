@@ -8,8 +8,8 @@ description:
   functionality
 
 dependencies:
-  smoke: '^0.3.6+2'
   redstone: '0.6.5'
+  collection: '^1.5.1'
   sqljocky: '0.14.1'
 dev_dependencies:
   test: '^0.12.0'

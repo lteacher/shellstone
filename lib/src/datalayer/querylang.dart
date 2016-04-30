@@ -8,6 +8,7 @@ export 'querylang/tokens/modifier.dart';
 export 'querylang/tokens/selector.dart';
 export 'querylang/tokens/condition.dart';
 export 'querylang/tokens/indentifier.dart';
+export 'querylang/tokens/insertion.dart';
 export 'querylang/query_token.dart';
 export 'querylang/query_runner.dart';
 export 'querylang/query_chain.dart';

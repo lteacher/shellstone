@@ -32,15 +32,15 @@ class EntityWrapper {
     var result = {};
 
     // For each field
-    _fields.where(attributes.containsKey).forEach((field) {
+    fields.where(attributes.containsKey).forEach((field) {
       Attr attr = attributes[field];
 
       // Set the property name
       var property = attr.column != null ? attr.column : field;
       var value = _reflectee.getField(new Symbol(field)).reflectee;
 
-      // If the value is not null set it
-      if (value != null) result[property] = _coerceType(attr.type, value);
+      // Set the value, null or not
+      result[property] = _coerceType(attr.type, value);
     });
 
     return result;
@@ -64,6 +64,8 @@ class EntityWrapper {
 
   // Convert some type, this is primitive. TODO: Do something better here
   _coerceType(type, value) {
+    if (value == null) return value;
+
     switch (type) {
       case 'string':
       case 'String':
@@ -71,6 +73,8 @@ class EntityWrapper {
       case 'integer':
       case 'int':
         return int.parse(value);
+      default:
+        return value;
     }
   }
 
@@ -93,7 +97,7 @@ class EntityWrapper {
   }
 
   // Get the fields of an object in string form
-  Iterable get _fields {
+  Iterable get fields {
     // Return from the cache if its in there
     if (_fieldCache.containsKey(entity.runtimeType))
       return _fieldCache[entity.runtimeType];
@@ -110,7 +114,7 @@ class EntityWrapper {
 
   // Ugh, get a field type out via query
   String _getType(field) {
-    var result = _fields.firstWhere((f) => f == field);
+    var result = fields.firstWhere((f) => f == field);
 
     return result.runtimeType.toString();
   }

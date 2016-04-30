@@ -2,9 +2,9 @@ import 'query_chain.dart';
 import 'tokens/indentifier.dart';
 import 'tokens/query.dart';
 import 'tokens/runnable.dart';
+import 'tokens/insertion.dart';
 import '../../metadata/annotations.dart';
 import '../../metadata/metadata.dart';
-
 
 /// Defines an action for a given model
 ///
@@ -12,13 +12,15 @@ import '../../metadata/metadata.dart';
 /// to the query chain that this action is a 'find' or other example.
 class QueryAction {
   String type;
+  String name;
   Model model;
   QueryChain _chain;
 
   // Constructor
   QueryAction(String name) {
-    _chain = new QueryChain(this);
-     model = Metadata.model(name);
+    this.name = name;
+    _chain = new QueryChain()..setQueryAction(this);
+    model = Metadata.model(name);
   }
 
   dynamic _init(type, result) {
@@ -37,17 +39,17 @@ class QueryAction {
 
   /// Insert a single entity
   SingleResultRunnable insert(dynamic entity) =>
-      _init('insert', new Query(_chain));
+      _init('insert', new Insertion(_chain, [entity]));
 
   /// Insert a collection of entities
-  SingleResultRunnable insertAll(List<dynamic> entities) =>
-      _init('insertAll', new Query(_chain));
+  MultipleResultRunnable insertAll(List<dynamic> entities) =>
+      _init('insertAll', new Insertion(_chain, entities));
 
   /// Update a given entity
   SingleResultRunnable update(dynamic entity) =>
       _init('update', new Query(_chain));
 
   /// Update a collection of entities
-  SingleResultRunnable updateAll(List<dynamic> entities) =>
+  MultipleResultRunnable updateAll(List<dynamic> entities) =>
       _init('updateAll', new Query(_chain));
 }

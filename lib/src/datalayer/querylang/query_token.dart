@@ -14,24 +14,25 @@ import 'query_runner.dart';
 abstract class QueryToken {
   QueryChain _chain;
   String operator;
-  List values;
+  List args;
 
   /// Takes a single [QueryChain] as an argument
   QueryToken(this._chain);
 
   // Allows conveniently setting the operator, values and returning the result
   dynamic init(op, val, result) {
+    this._chain.add(this);
     this.operator = op;
 
     if (val is List)
-      this.values = val;
+      this.args = val;
     else
-      this.values = []..add(val);
+      this.args = []..add(val);
 
     return result;
   }
 
-  runChain() => new QueryRunner(chain);
+  runChain() => new QueryRunner(chain).run();
 
   get chain => _chain;
 }
