@@ -12,33 +12,38 @@ class User {
   @Attr() String email;
 }
 
+@Hook.pre(Adapter.configure)
+setCredentials(event) {
+  // print(event.data);
+  // event.data.user = 'hugodd';
+}
+
+@Listen.pre(Adapter.configure)
+logBeforeConfig(event) {
+  print('Doing config');
+}
+
+@Listen.post(Adapter.configure)
+logAfterConfig(event) {
+  print('Doing after');
+}
+
+// @Adapter('mysql')
+// class CustomMysqlAdapter extends DatabaseAdapter {
+//
+//   get name => 'mysql';
+//   get driver { }
+//
+//   configure() {}
+//   connect() {}
+//   build() {}
+//   disconnect() {}
+//   execute(chain) {}
+// }
+
 main() async {
   strapIn();
 
-  Stream results = await Model.findAll('User').where('id').le(3).run();
-  results.forEach((user) {
-    print(user.firstName);
-  });
-
-
-  // await adapters('mysql').disconnect();
-
-  // User user = new User();
-  // user.firstName = 'Jimmy';
-  // user.lastName = 'Jones';
-  // user.username = 'jswizzle@g.com';
-  // user.password = '123456';
-
-  // Stream res = await Model.insert(user).run();
-  //
-  // res.forEach((a) {
-  //   print(a);
-  // });
-  //
-  //
-  // // Model.insertAll([user]).run();
-  //
-  // print(user != null ? user.firstName : 'No results');
 }
 
 // Javascript Examples
