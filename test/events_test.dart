@@ -41,10 +41,6 @@ main() {
       await trigger(new Event(String,'random'));
       expect(buildListen,equals(true));
     });
-
-    test('@Hook on adapter configure can modify the adapter', () {
-      expect(userIsChanged,equals(true));
-    });
   });
 }
 
@@ -56,12 +52,10 @@ bool buildHook;
 bool buildListen;
 bool customHook;
 bool customListen;
-bool userIsChanged;
 
 @Hook(Adapter.configure)
 hookConfigure(event) {
   configureHook = true;
-  event.data.user = 'changedUser';
 }
 
 @Listen(Adapter.configure)
@@ -76,7 +70,6 @@ listenConnect(event) => connectListen = true;
 @Hook(Adapter.build)
 hookBuild(event) {
   buildHook = true;
-  if(event.data.user == 'changedUser') userIsChanged = true;
 }
 
 @Listen(Adapter.build)

@@ -12,38 +12,27 @@ class User {
   @Attr() String email;
 }
 
-@Hook.pre(Adapter.configure)
+@Hook(Adapter.configure)
 setCredentials(event) {
-  // print(event.data);
-  // event.data.user = 'hugodd';
+  // var conn = event.data;
+  //
+  // conn.user = 'root';
+  // conn.password = 'root';
+  // conn.host = '127.0.0.1';
+  // conn.db = 'test';
+  print('bam');
 }
 
-@Listen.pre(Adapter.configure)
-logBeforeConfig(event) {
-  print('Doing config');
+@Hook(Adapter.configure)
+notSetCredentials(event) {
+  print('pow');
 }
 
-@Listen.post(Adapter.configure)
-logAfterConfig(event) {
-  print('Doing after');
-}
-
-// @Adapter('mysql')
-// class CustomMysqlAdapter extends DatabaseAdapter {
-//
-//   get name => 'mysql';
-//   get driver { }
-//
-//   configure() {}
-//   connect() {}
-//   build() {}
-//   disconnect() {}
-//   execute(chain) {}
-// }
 
 main() async {
-  strapIn();
+  await strapIn();
 
+  var user = await Model.find('User').run();
 }
 
 // Javascript Examples

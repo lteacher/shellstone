@@ -50,7 +50,7 @@ class EventDispatcher {
   // Dispatches the event for the hooks in order returning the future
   static Future _dispatchHooks(Event e, EventRegistration reg) {
     // No hooks return an empty future
-    if (!listeners.containsKey(reg)) return new Future.value();
+    if (!hooks.containsKey(reg)) return new Future.value();
 
     // Create stream from the event
     Stream stream = new Stream.fromIterable([e]);
