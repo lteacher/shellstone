@@ -35,7 +35,7 @@ class Model {
       new QueryAction(Metadata.name(entity)).insert(entity);
 
   /// The [insertAll] method inserts all the entities in the collection
-  static MultipleResultRunnable insertAll(List entities) =>
+  static SingleResultRunnable insertAll(List entities) =>
       new QueryAction(Metadata.name(entities)).insertAll(entities);
 
   /// The [update] method is used to update an entity if it exists
@@ -43,7 +43,7 @@ class Model {
       new QueryAction(Metadata.name(entity)).insert(entity);
 
   /// The [updateAll] method updates all of the entities in the [entities] colllection
-  static MultipleResultQuery updateAll(List entities) =>
+  static SingleResultQuery updateAll(List entities) =>
       new QueryAction(Metadata.name(entities)).insertAll(entities);
 }
 

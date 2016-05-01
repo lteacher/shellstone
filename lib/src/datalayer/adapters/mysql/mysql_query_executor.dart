@@ -69,7 +69,7 @@ class MysqlQueryExecutor {
       if (left is Insertion) {
         var fields;
         left.args.map((entity) {
-          // If we dont know the first then for the first entity grab them
+          // If we dont know the fields then for the first entity grab them
           // and put them into the query commands
           if (fields == null) {
             fields = _getFields(entity);
@@ -91,42 +91,44 @@ class MysqlQueryExecutor {
 
     // If a limit hasnt been added, which it shouldnt have for a single
     // result, add it to the end (TODO, dont allow limit in single queries)
-    if (!_isMulti && !commands.contains('limit')) commands.add('limit 1');
+    if (!_isMulti && !_isModify && !commands.contains('limit'))
+      commands.add('limit 1');
 
     return commands.join(' ');
   }
 
   // Executes a query that will return a single Future
   Future _singleExec() async {
-    mysql.Results results = await _execQuery();
-    var fields = results.fields.map((f) => f.name);
+    var results = await _execQuery();
 
-    // Get the rows to a list so we can know if is empty
-    // This is very unfortunate, hope to find something better
-    List rows = await results.toList();
+    if (_isModify) {
+      // Somehow its a stream of streams?
+      return results;
+    } else {
+      var fields = results.fields.map((f) => f.name);
 
-    return rows.isEmpty
-        ? new Future.value() // Return emtpy future
-        : new Stream.fromIterable(rows)
-            .map((row) => new Map.fromIterables(fields, row))
-            .map((row) => Metadata.unwrap('User', row))
-            .first;
+      // Get the rows to a list so we can know if is empty
+      // This is very unfortunate, hope to find something better
+      List rows = await results.toList();
+
+      return rows.isEmpty
+          ? new Future.value() // Return emtpy future
+          : new Stream.fromIterable(rows)
+              .map((row) => new Map.fromIterables(fields, row))
+              .map((row) => Metadata.unwrap('User', row))
+              .first;
+    }
   }
 
   // Executes a query that will return a Stream, hence the generator
   Stream _multiExec() async* {
     var results = await _execQuery();
 
-    if (_isModify) {
-      yield results;
-    } else {
-      var fields = results.fields.map((f) => f.name);
+    var fields = results.fields.map((f) => f.name);
 
-
-      yield* results
-          .map((row) => new Map.fromIterables(fields, row))
-          .map((row) => Metadata.unwrap('User', row));
-    }
+    yield* results
+        .map((row) => new Map.fromIterables(fields, row))
+        .map((row) => Metadata.unwrap('User', row));
   }
 
   // Executes a query
@@ -136,7 +138,7 @@ class MysqlQueryExecutor {
 
     // If modify unfortunately a List<Results> is returned... so a List<Stream>
     // which literally just has an id per stream so I cant accept that. Need to
-    // squash them into a single stream of ids. Frankly the ids should be
+    // squash them into a single list of ids. Frankly the ids should be
     // injected back into the entities
     if (_isModify) {
       var results = [];
@@ -145,17 +147,17 @@ class MysqlQueryExecutor {
         results.add(result.insertId);
       });
 
-      q.close();
-      return new Stream.fromIterable(results);
+      await q.close();
+      return new Future.value(results);
     } else {
       var results = await q.execute(_values);
 
-      q.close();
+      await q.close();
       return results;
     }
   }
 
-  get _isMulti => _chain.action == 'findAll' || _isModify;
+  get _isMulti => _chain.action == 'findAll';
   get _isModify =>
       _chain.action == 'insert' ||
       _chain.action == 'insertAll' ||
@@ -199,6 +201,7 @@ class MysqlQueryExecutor {
       case 'findAll':
         return 'select * from ${_chain.resource}';
       case 'insert':
+      case 'insertAll':
         return 'insert into ${_chain.resource}';
     }
   }

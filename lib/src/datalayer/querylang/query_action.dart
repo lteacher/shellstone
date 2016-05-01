@@ -42,14 +42,14 @@ class QueryAction {
       _init('insert', new Insertion(_chain, [entity]));
 
   /// Insert a collection of entities
-  MultipleResultRunnable insertAll(List<dynamic> entities) =>
+  SingleResultRunnable insertAll(List<dynamic> entities) =>
       _init('insertAll', new Insertion(_chain, entities));
 
   /// Update a given entity
-  SingleResultRunnable update(dynamic entity) =>
+  SingleResultQuery update(dynamic entity) =>
       _init('update', new Query(_chain));
 
   /// Update a collection of entities
-  MultipleResultRunnable updateAll(List<dynamic> entities) =>
+  SingleResultQuery updateAll(List<dynamic> entities) =>
       _init('updateAll', new Query(_chain));
 }
