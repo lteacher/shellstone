@@ -2,7 +2,7 @@ language: dart
 sudo: false
 script: ./tool/travis.sh
 
-service:
+services:
   - docker
 
 before_install:
