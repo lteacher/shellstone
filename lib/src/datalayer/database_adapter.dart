@@ -11,11 +11,13 @@ import 'querylang.dart';
 /// When queries are executed the [DatabaseAdapter.execute] method will be called
 abstract class DatabaseAdapter {
   Map<String,dynamic> parms = new Map();
+  dynamic pool;
   dynamic conn;
   String user;
   String password;
   String host;
   int port;
+  String db;
 
   DatabaseAdapter();
 

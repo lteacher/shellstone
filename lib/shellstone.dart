@@ -1,8 +1,11 @@
 library shellstone;
 
 // Imports
+import 'dart:async';
+import 'dart:mirrors';
 import 'src/metadata/metadata.dart';
 import 'src/datalayer/database_adapter.dart';
+import 'src/datalayer/adapters/mysql/mysql_adapter.dart';
 
 // Exports
 export 'src/metadata/annotations.dart';
@@ -22,12 +25,15 @@ export 'src/util/entity_wrapper.dart';
 /// - Listeners will be hooked up
 strapIn() {
   // Add base adapters
+  _addBaseAdapters();
 
-  // Startup the metadata
+  // Load and scan for metadata
   new Metadata().scan();
 
-  // Add listeners
+  // Add listeners (probably will happen in the scan above)
 
+  // Start and run the adapter methods
+  return _runAdapters();
 }
 
 /// Retrieves an adapter by name.
@@ -54,3 +60,34 @@ listen(event, Function function) { }
 
 // Used to store the adapters for function [adapters]
 Map<String,DatabaseAdapter> _adapters = new Map();
+
+// Runs all the adapter setups
+ Future _runAdapters() {
+   StreamController ctrl = new StreamController.broadcast();
+
+   var results = [];
+   _adapters.forEach((key, val) {
+     results.add(ctrl.stream
+         .listen((event) => _invokeMethod(val, event))
+         .asFuture());
+   });
+
+    // Add the events to the pipe
+    ctrl.add('configure');
+    ctrl.add('connect');
+    ctrl.add('build');
+
+    // Return
+    return Future.wait(results);
+  }
+
+/// Adds in all the base adapters
+_addBaseAdapters() {
+  // Which is only mysql at the moment
+  addAdapter('mysql', new MysqlAdapter());
+}
+
+// Call a method
+dynamic _invokeMethod(object,name) {
+  return reflect(object).invoke(new Symbol(name), new List()).reflectee;
+}

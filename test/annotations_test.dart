@@ -1,8 +1,13 @@
 import 'dart:mirrors';
 import 'package:test/test.dart';
+import 'package:shellstone/shellstone.dart';
 import 'test_setups.dart';
 
 main() {
+  setUp(() {
+    // Start shellstone to setup any annotations
+    strapIn();
+  });
   group('Annotations', () {
     test('@Model(resource:String) can set the resource for the model', () {
       expect(model.resource,equals('user'));

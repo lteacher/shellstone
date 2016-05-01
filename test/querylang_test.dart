@@ -2,6 +2,10 @@ import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
 
 main() {
+  setUp(() {
+    // Start shellstone to setup any annotations
+    strapIn();
+  });
   group('Query Language', () {
     test('Model.get(model:String) returns an Identifier', () {
       expect(Model.get('User'),new isInstanceOf<Identifier>());

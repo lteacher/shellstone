@@ -1,18 +1,44 @@
+import 'dart:async';
 import '../lib/shellstone.dart';
 // import 'package:sqljocky/sqljocky.dart';
-// import 'dart:async';
 
-@Model('User')
+@Model('User', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
 class User {
-  @Attr(type: 'string', column: 'fullName') String name;
-  @Attr(type: 'string', column: 'faceThingo') String faceThingo;
+  @Attr() String id;
+  @Attr() String firstName;
+  @Attr() String lastName;
+  @Attr() String username;
+  @Attr() String password;
+  @Attr() String email;
 }
 
 main() async {
   strapIn();
 
-  var result = Metadata.wrap(new User()..name = 'Bill');
-  var user = Metadata.unwrap('User', result);
+  Stream results = await Model.findAll('User').where('id').le(3).run();
+  results.forEach((user) {
+    print(user.firstName);
+  });
+
+
+  // await adapters('mysql').disconnect();
+
+  // User user = new User();
+  // user.firstName = 'Jimmy';
+  // user.lastName = 'Jones';
+  // user.username = 'jswizzle@g.com';
+  // user.password = '123456';
+
+  // Stream res = await Model.insert(user).run();
+  //
+  // res.forEach((a) {
+  //   print(a);
+  // });
+  //
+  //
+  // // Model.insertAll([user]).run();
+  //
+  // print(user != null ? user.firstName : 'No results');
 }
 
 // Javascript Examples
