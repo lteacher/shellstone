@@ -15,6 +15,8 @@ create table user(
 	primary key (id)
 	);"
 
+sleep 5
+
 # Boom, docker town
 docker exec -i mysql mysql -uroot -proot -e "$sql"
 
