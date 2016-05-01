@@ -2,6 +2,9 @@ language: dart
 sudo: false
 script: ./tool/travis.sh
 
+service:
+  - docker
+
 before_install:
   - docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql
   - chmod +x ./tool/travis.sh
