@@ -2,7 +2,6 @@ import 'dart:mirrors';
 import 'annotations.dart';
 import 'metadata_proxies.dart';
 import 'metadata_scanner.dart';
-import '../util/entity_builder.dart';
 import '../util/entity_wrapper.dart';
 
 /// Encapsulates the utility functions of looking up model annotated data

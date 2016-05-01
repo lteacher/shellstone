@@ -1,13 +1,17 @@
-library shellstone_tests;
+library shellstone;
 
+import 'adapters_test.dart' as adapters;
 import 'annotations_test.dart' as annotations;
-import 'querylang_test.dart' as queries;
 import 'metadata_test.dart' as metadata;
+import 'querylang_test.dart' as queries;
 import 'utils_test.dart' as utils;
+import 'events_test.dart' as events;
 
 main() {
+  adapters.main();
   annotations.main();
-  queries.main();
   metadata.main();
+  queries.main();
   utils.main();
+  events.main();
 }

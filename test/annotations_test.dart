@@ -49,4 +49,4 @@ dynamic attr(name) {
   var att = reflectClass(User).declarations[new Symbol(name)]; //metadata.first.reflectee;
   return att.metadata.first.reflectee;
 }
-dynamic get dbAdapter => reflectClass(MongoAdapter).metadata.first.reflectee;
+dynamic get dbAdapter => reflectClass(CustomMongoAdapter).metadata.first.reflectee;

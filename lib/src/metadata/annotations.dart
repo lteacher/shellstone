@@ -1,5 +1,7 @@
 import 'metadata.dart';
 import '../datalayer/querylang.dart';
+import '../notification/events.dart';
+import '../notification/event_registration.dart';
 
 /// An annotation to represent the metadata of a Model.
 ///
@@ -70,13 +72,38 @@ class Adapter {
   /// The [name] is the database name, for exampe 'mongo' or 'mysql' etc
   const Adapter(this.name);
 
-  /// Adapter events ? coming soon
-  // final AdapterEvent configure = const AdapterEvent();
+  static const EventRegistration configure = const EventRegistration(Adapter,'configure');
+  static const EventRegistration connect = const EventRegistration(Adapter,'connect');
+  static const EventRegistration build = const EventRegistration(Adapter,'build');
+  static const EventRegistration disconnect = const EventRegistration(Adapter,'disconnect');
+  // static const EventRegistration query = const EventRegistration(Adapter,'query');
+}
+
+/// Defines a [Handler] such as a [Hook] or a [Listen]er
+abstract class Handler {
+  final String loc;
+  final EventRegistration reg;
+
+  const Handler(this.reg,[this.loc='pre']);
 }
 
 /// An annotation to set a listener for a particular event
-class Listen {
-  const Listen();
-  const Listen.pre();
-  const Listen.post();
+///
+/// [Listen]ers are functions that are notified via [BroadcastStream]
+/// and are generally for notification as they are fired off async
+class Listen extends Handler {
+  const Listen(EventRegistration reg) : super(reg);
+  const Listen.pre(EventRegistration reg) : super(reg);
+  const Listen.post(EventRegistration reg) : super(reg,'post');
+}
+
+/// An annotation to set a hook in for a particular event
+///
+/// [Hooks] are functions that are called like intercepters pre or post
+/// something happening. They provide the opportunity to manipulate something
+/// similar to a map function.
+class Hook extends Handler {
+  const Hook(EventRegistration reg) : super(reg);
+  const Hook.pre(EventRegistration reg) : super(reg);
+  const Hook.post(EventRegistration reg) : super(reg,'post');
 }

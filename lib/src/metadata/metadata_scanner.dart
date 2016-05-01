@@ -1,6 +1,6 @@
 import 'dart:mirrors';
-import 'annotations.dart';
-import 'metadata_proxies.dart';
+import '../util/globals.dart';
+import '../../shellstone.dart';
 
 /// Scans the mirror system looking for Shellstone annotations
 class MetadataScanner {
@@ -12,8 +12,6 @@ class MetadataScanner {
     var libs = mirrorSystem.libraries;
 
     // For each library, load the models
-    // NOTE that this only does local files at the moment but easily changed
-    // down in the _isScannable method
     libs.forEach(_loadModels);
   }
 
@@ -34,21 +32,36 @@ class MetadataScanner {
     // Should be compiler error for lack of reflectee outside
     var reflectee = meta.first.reflectee;
 
-    if (reflectee is Model || reflectee is Adapter)
+    // Handle Model annotation
+    if (reflectee is Model)
       _addProxy(name, m, reflectee);
-    if (reflectee is Attr) proxy.dependents[name] = reflectee;
-    // if (reflectee is DBEventMeta) {
-    //   proxy.dependents[reflectee.name] = _getEventMethod(proxy.instance, sym);
-    // }
-  }
 
-  // // Returns an annotated method for an event
-  // _getEventMethod(InstanceMirror obj, Symbol name) {
-  //   var method = obj.getField(name).reflectee;
-  //   return method is DBEventHandler
-  //       ? method
-  //       : throw 'The annotated method `${MirrorSystem.getName(name)}` is not a valid handler';
-  // }
+    // Handle adapter
+    else if (reflectee is Adapter) {
+      _addProxy(name, m, reflectee);
+
+      // Drop the reflected adapter instance into the global
+      // shellstone adapters (from shellstone.dart)
+      addAdapter(
+          reflectee.name, this.adapters[reflectee.name].instance.reflectee);
+    }
+
+    // Handle Attr annotations
+    else if (reflectee is Attr)
+      proxy.dependents[name] = reflectee;
+
+    // Handle Listen or Hook types
+    else if (reflectee is Handler) {
+      LibraryMirror lm = m.owner;
+      var fn = lm.getField(sym).reflectee;
+
+      if (!(fn is HandlerFunction))
+        throw 'Invalid handler `$name` provided for `${reflectee.runtimeType}`';
+        
+      // Set the handlers
+      addHandler(reflectee.runtimeType, reflectee.reg, fn, reflectee.loc);
+    }
+  }
 
   // Convenience method to add a metadata proxy, and reflectee to a collection
   Map _addProxy(name, m, r) {

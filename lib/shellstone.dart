@@ -2,10 +2,15 @@ library shellstone;
 
 // Imports
 import 'dart:async';
-import 'dart:mirrors';
-import 'src/metadata/metadata.dart';
-import 'src/datalayer/database_adapter.dart';
+import 'src/util/globals.dart';
 import 'src/datalayer/adapters/mysql/mysql_adapter.dart';
+import 'src/metadata/annotations.dart';
+import 'src/datalayer/database_adapter.dart';
+import 'src/metadata/metadata.dart';
+import 'src/notification/events.dart';
+import 'src/notification/adapter_events.dart';
+import 'src/notification/event_dispatcher.dart';
+import 'src/notification/event_registration.dart';
 
 // Exports
 export 'src/metadata/annotations.dart';
@@ -15,6 +20,8 @@ export 'src/datalayer/querylang.dart';
 export 'src/datalayer/database_adapter.dart';
 export 'src/util/entity_builder.dart';
 export 'src/util/entity_wrapper.dart';
+export 'src/notification/events.dart';
+export 'src/notification/event_registration.dart';
 
 /// The main [Shellstone] hook - enjoy!
 ///
@@ -23,9 +30,9 @@ export 'src/util/entity_wrapper.dart';
 /// - Base adapters will be added
 /// - Metadata will be scanned in from any annotations
 /// - Listeners will be hooked up
-strapIn() {
-  // Add base adapters
-  _addBaseAdapters();
+strapIn([withAdapters = true]) {
+  // Add base adapters if desired
+  if (withAdapters) _addBaseAdapters();
 
   // Load and scan for metadata
   new Metadata().scan();
@@ -46,48 +53,62 @@ DatabaseAdapter adapters(String name) => _adapters[name];
 ///
 /// If you have a custom adapter you can physically inject it here in case
 /// you hate annotations or need to do it dynamically for some insane reason
-/// **Note** setting the same name as an existing will replace that existing
 addAdapter(String name, DatabaseAdapter adapter) {
   _adapters[name] = adapter;
 }
 
-
-/// _Coming soon - Adds a function to listen for shellstone events_
+/// Adds a listener for a given [EventRegistration]
 ///
 /// **Note** you cant listen to events that trigger during setup such as some
-/// adapter events for example. To listen on those you must use the annotation
-listen(event, Function function) { }
+/// adapter events for example. To listen on those you must use the @Listen annotation
+addListener(EventRegistration reg, Function f, [loc = 'pre']) {
+  addHandler(Listen, reg, f, loc);
+}
+
+/// Adds a hook for a given [EventRegistration]
+///
+/// **Note** you cant listen to events that trigger during setup such as some
+/// adapter events for example. To listen on those you must use the @Listen annotation
+addHook(EventRegistration reg, Function f, [loc = 'pre']) {
+  addHandler(Listen, reg, f, loc);
+}
+
+/// Allows for the triggering of some [Event] e
+Future trigger(Event e) {
+  return EventDispatcher.trigger(e);
+}
 
 // Used to store the adapters for function [adapters]
-Map<String,DatabaseAdapter> _adapters = new Map();
+Map<String, DatabaseAdapter> _adapters = new Map();
 
 // Runs all the adapter setups
- Future _runAdapters() {
-   StreamController ctrl = new StreamController.broadcast();
+Future _runAdapters() {
+  // If there are no adapters just return an empty future
+  if (_adapters.isEmpty) return new Future.value();
 
-   var results = [];
-   _adapters.forEach((key, val) {
-     results.add(ctrl.stream
-         .listen((event) => _invokeMethod(val, event))
-         .asFuture());
-   });
+  StreamController ctrl = new StreamController.broadcast();
 
-    // Add the events to the pipe
-    ctrl.add('configure');
-    ctrl.add('connect');
-    ctrl.add('build');
+  var results = [];
+  _adapters.forEach((key, val) {
+    results.add(ctrl.stream
+        .asyncMap((event) => EventDispatcher
+            .trigger(new AdapterEvent(event, val))
+            .then((v) => event))
+        .listen((event) => invokeMethod(val, event))
+        .asFuture());
+  });
 
-    // Return
-    return Future.wait(results);
-  }
+  // Add the events to the pipe
+  ctrl.add('configure');
+  ctrl.add('connect');
+  ctrl.add('build');
+
+  // Return
+  return Future.wait(results);
+}
 
 /// Adds in all the base adapters
 _addBaseAdapters() {
   // Which is only mysql at the moment
   addAdapter('mysql', new MysqlAdapter());
-}
-
-// Call a method
-dynamic _invokeMethod(object,name) {
-  return reflect(object).invoke(new Symbol(name), new List()).reflectee;
 }

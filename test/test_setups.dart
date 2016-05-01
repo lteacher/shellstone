@@ -17,7 +17,7 @@ class Person {
 }
 
 @Adapter('mongo')
-class MongoAdapter extends DatabaseAdapter {
+class CustomMongoAdapter extends DatabaseAdapter {
 
   get name => 'mongo';
   get driver { }
