@@ -6,7 +6,7 @@ import 'metadata_test.dart' as metadata;
 import 'querylang_test.dart' as queries;
 import 'utils_test.dart' as utils;
 import 'events_test.dart' as events;
-import 'mysql_adapter.dart' as mysql;
+import 'mysql_adapter_test.dart' as mysql;
 
 main() {
   adapters.main();

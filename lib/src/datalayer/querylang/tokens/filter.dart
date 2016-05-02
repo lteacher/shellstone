@@ -11,7 +11,6 @@ abstract class SingleResultFilter {
   SingleResultCondition gt(values);
   SingleResultCondition le(values);
   SingleResultCondition ge(values);
-  SingleResultModifier filter(Function f);
 }
 
 /// A filter for some multiple result [QueryAction]
@@ -22,7 +21,6 @@ abstract class MultipleResultFilter {
   MultipleResultCondition gt(values);
   MultipleResultCondition le(values);
   MultipleResultCondition ge(values);
-  MultipleResultModifier filter(Function f);
 }
 
 /// A query token
@@ -35,5 +33,4 @@ class Filter extends QueryToken {
   gt(values) => init('gt', values, new Condition(chain));
   le(values) => init('le', values, new Condition(chain));
   ge(values) => init('ge', values, new Condition(chain));
-  filter(Function f) => init('filter', f, new Condition(chain));
 }

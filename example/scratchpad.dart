@@ -24,6 +24,15 @@ setCredentials(event) {
 main() async {
  await strapIn();
 
+ User user = new User()..id = '1';
+
+ var res = await Model.remove(user).run();
+
+ print(res);
+// users.forEach((user) {
+//   print(user);
+// });
+
 }
 
 // Javascript Examples

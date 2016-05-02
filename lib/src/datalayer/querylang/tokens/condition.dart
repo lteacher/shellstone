@@ -20,13 +20,9 @@ abstract class MultipleResultCondition
         MultipleResultRunnable {}
 
 // Implements the concrete condition class
-class Condition extends QueryToken
+class Condition extends Selector
     implements SingleResultCondition, MultipleResultCondition {
   Condition(QueryChain chain) : super(chain);
-
-  // Selectors
-  and(fields) => init('and', fields, new Filter(chain));
-  or(fields) => init('or', fields, new Filter(chain));
 
   // Modifiers
   sort(direction, fields) => init('sort', fields, new Modifier(chain));
