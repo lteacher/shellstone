@@ -63,6 +63,32 @@ class MysqlQueryExecutor {
         j++;
       }
 
+      if (left is Update) {
+        List fields;
+        _entities = left.args;
+        left.args.map((entity) {
+          // If we dont know the fields then for the first entity grab them
+          // and put them into the query commands
+          if (fields == null) fields = _getFields(entity);
+
+          // Return the wrapped entity
+          return Metadata.wrap(entity);
+        }).forEach((Map map) {
+          // Add the values as a straight list of values
+          _values.add(map.values.toList());
+        });
+
+        var buffer =
+            fields.fold(new StringBuffer(), (StringBuffer prev, field) {
+          if (!prev.isEmpty) prev.write(', ');
+
+          prev.write('$field = ?');
+          return prev;
+        });
+
+        commands.add(buffer.toString());
+      }
+
       if (left.operator == 'filter') _filter = left.args.first;
 
       // Left side token is modifier (e.g. sort, limit)
@@ -173,8 +199,8 @@ class MysqlQueryExecutor {
           _entities[i].id = id;
         }
       } else {
-        // Return just the affected rows
-        return res.first.affectedRows;
+        // Return the sum of the affected rows
+        return res.fold(0,(prev,curr) => curr.affectedRows + prev);
       }
 
       await q.close();
@@ -238,7 +264,7 @@ class MysqlQueryExecutor {
         return 'insert into ${_chain.resource}';
       case 'update':
       case 'updateAll':
-        return 'update ${_chain.resource}';
+        return 'update ignore ${_chain.resource} set';
       case 'remove':
       case 'removeAll':
         return 'delete from ${_chain.resource}';

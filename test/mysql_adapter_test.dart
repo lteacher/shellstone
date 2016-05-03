@@ -243,6 +243,32 @@ main() {
       expect(users, equals([]));
     });
 
+    test('Model.update(user) can modify an entity', () async {
+      User user = await Model.get('User').id(1).run();
+
+      user.firstName = 'Jane';
+      user.lastName = 'Doe';
+      var id = await Model.update(user).run();
+      user = await Model.get('User').id(1).run();
+
+      expect(id, equals(1));
+      expect([user.firstName,user.lastName],equals(['Jane','Doe']));
+    });
+
+    test('Model.update([user]) can modify multiple entities', () async {
+      User u1 = await Model.get('User').id(2).run();
+      User u2 = await Model.get('User').id(3).run();
+
+      u1.firstName = 'Sam';
+      u2.firstName = 'Clint';
+      var id = await Model.updateAll([u1,u2]).run();
+      u1 = await Model.get('User').id(2).run();
+      u2 = await Model.get('User').id(3).run();
+
+      expect(id, equals(2));
+      expect([u1.firstName,u2.firstName],equals(['Sam','Clint']));
+    });
+
     test('Model.remove(user) removes the given entity', () async {
       User user = new User()..id = 1;
       var id = await Model.remove(user).run();
@@ -251,15 +277,15 @@ main() {
       expect(user, equals(null));
     });
 
-    // test('Model.removeAll([users]) removes the given entities', () async {
-    //   List users = []..add(new User()..id = 2)..add(new User()..id = 3);
-    //   var id = await Model.removeAll(users).run();
-    //   User u1 = await Model.get('User').id(2).run();
-    //   User u2 = await Model.get('User').id(3).run();
-    //   expect(id, equals(2));
-    //   expect(u1, equals(null));
-    //   expect(u2, equals(null));
-    // });
+    test('Model.removeAll([users]) removes the given entities', () async {
+      List users = []..add(new User()..id = 2)..add(new User()..id = 3);
+      var id = await Model.removeAll(users).run();
+      User u1 = await Model.get('User').id(2).run();
+      User u2 = await Model.get('User').id(3).run();
+      expect(id, equals(2));
+      expect(u1, equals(null));
+      expect(u2, equals(null));
+    });
   });
 }
 

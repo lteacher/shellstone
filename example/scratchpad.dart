@@ -4,11 +4,16 @@ import '../lib/shellstone.dart';
 
 @Model('user', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
 class User {
-  @Attr() String id;
-  @Attr() String firstName;
-  @Attr() String lastName;
-  @Attr() String username;
-  @Attr() String password;
+  @Attr()
+  String id;
+  @Attr()
+  String firstName;
+  @Attr()
+  String lastName;
+  @Attr()
+  String username;
+  @Attr()
+  String password;
 }
 
 @Hook(Adapter.configure)
@@ -22,17 +27,7 @@ setCredentials(event) {
 }
 
 main() async {
- await strapIn();
-
- User user = new User()..id = '1';
-
- var res = await Model.remove(user).run();
-
- print(res);
-// users.forEach((user) {
-//   print(user);
-// });
-
+  await strapIn();
 }
 
 // Javascript Examples
