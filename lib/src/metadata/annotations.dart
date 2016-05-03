@@ -35,16 +35,24 @@ class Model {
       new QueryAction(Metadata.name(entity)).insert(entity);
 
   /// The [insertAll] method inserts all the entities in the collection
-  static MultipleResultRunnable insertAll(List entities) =>
+  static SingleResultRunnable insertAll(List entities) =>
       new QueryAction(Metadata.name(entities)).insertAll(entities);
 
   /// The [update] method is used to update an entity if it exists
-  static SingleResultQuery update(entity) =>
-      new QueryAction(Metadata.name(entity)).insert(entity);
+  static SingleResultRunnable update(entity) =>
+      new QueryAction(Metadata.name(entity)).update(entity);
 
   /// The [updateAll] method updates all of the entities in the [entities] colllection
-  static MultipleResultQuery updateAll(List entities) =>
-      new QueryAction(Metadata.name(entities)).insertAll(entities);
+  static SingleResultRunnable updateAll(List entities) =>
+      new QueryAction(Metadata.name(entities)).updateAll(entities);
+
+  /// The [remove] method is used to insert a given entity
+  static SingleResultRunnable remove(entity) =>
+      new QueryAction(Metadata.name(entity)).remove(entity);
+
+  /// The [removeAll] method inserts all the entities in the collection
+  static SingleResultRunnable removeAll(List entities) =>
+      new QueryAction(Metadata.name(entities)).removeAll(entities);
 }
 
 /// An annotation to represent the metadata of an Attribute.

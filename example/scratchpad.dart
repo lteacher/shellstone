@@ -2,48 +2,32 @@ import 'dart:async';
 import '../lib/shellstone.dart';
 // import 'package:sqljocky/sqljocky.dart';
 
-@Model('User', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
+@Model('user', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
 class User {
-  @Attr() String id;
-  @Attr() String firstName;
-  @Attr() String lastName;
-  @Attr() String username;
-  @Attr() String password;
-  @Attr() String email;
+  @Attr()
+  String id;
+  @Attr()
+  String firstName;
+  @Attr()
+  String lastName;
+  @Attr()
+  String username;
+  @Attr()
+  String password;
 }
 
-@Hook.pre(Adapter.configure)
+@Hook(Adapter.configure)
 setCredentials(event) {
-  // print(event.data);
-  // event.data.user = 'hugodd';
-}
+  var conn = event.data;
 
-@Listen.pre(Adapter.configure)
-logBeforeConfig(event) {
-  print('Doing config');
+  conn.user = 'root';
+  conn.password = 'root';
+  conn.host = '127.0.0.1';
+  conn.db = 'test';
 }
-
-@Listen.post(Adapter.configure)
-logAfterConfig(event) {
-  print('Doing after');
-}
-
-// @Adapter('mysql')
-// class CustomMysqlAdapter extends DatabaseAdapter {
-//
-//   get name => 'mysql';
-//   get driver { }
-//
-//   configure() {}
-//   connect() {}
-//   build() {}
-//   disconnect() {}
-//   execute(chain) {}
-// }
 
 main() async {
-  strapIn();
-
+  await strapIn();
 }
 
 // Javascript Examples

@@ -14,6 +14,8 @@ class MysqlQueryExecutor {
   MysqlAdapter _adapter;
   QueryChain<QueryToken> _chain;
   List _values = [];
+  List _entities;
+  dynamic _filter;
 
   MysqlQueryExecutor(this._adapter, this._chain);
 
@@ -32,10 +34,10 @@ class MysqlQueryExecutor {
       var joiner;
       var op;
 
-      // Left side token is selector
-      if (left is Selector || left is Query) {
+      // Left side token is selector, query and nota filter
+      if (left is Selector || left is Query && left.operator != 'filter') {
         // If query push the command `where` in
-        if (left is Query) commands.add(left.operator);
+        commands.add(left.operator);
 
         // Get the join, such as and, or
         joiner = _getJoiner(left.operator);
@@ -61,15 +63,57 @@ class MysqlQueryExecutor {
         j++;
       }
 
+      if (left is Update) {
+        List fields;
+        _entities = left.args;
+        left.args.map((entity) {
+          // If we dont know the fields then for the first entity grab them
+          // and put them into the query commands
+          if (fields == null) fields = _getFields(entity);
+
+          // Return the wrapped entity
+          return Metadata.wrap(entity);
+        }).forEach((Map map) {
+          // Add the values as a straight list of values
+          _values.add(map.values.toList());
+        });
+
+        var buffer =
+            fields.fold(new StringBuffer(), (StringBuffer prev, field) {
+          if (!prev.isEmpty) prev.write(', ');
+
+          prev.write('$field = ?');
+          return prev;
+        });
+
+        commands.add(buffer.toString());
+      }
+
+      if (left.operator == 'filter') _filter = left.args.first;
+
       // Left side token is modifier (e.g. sort, limit)
       if (left is Modifier) {
         if (left.operator == 'limit') commands.add('limit ${left.args[0]}');
       }
 
+      // Get request, TODO: replace id with actual primaryKey
+      if (left is Identifier || left is Removal) {
+        commands.add('where id = ?');
+        if (!_isModify) _values.add(left.args.first);
+        else {
+          // TODO Again the id is hardcoded
+          left.args.forEach((entity) {
+            _values.add([entity.id]);
+          });
+        }
+
+      }
+
       if (left is Insertion) {
         var fields;
+        _entities = left.args;
         left.args.map((entity) {
-          // If we dont know the first then for the first entity grab them
+          // If we dont know the fields then for the first entity grab them
           // and put them into the query commands
           if (fields == null) {
             fields = _getFields(entity);
@@ -91,42 +135,46 @@ class MysqlQueryExecutor {
 
     // If a limit hasnt been added, which it shouldnt have for a single
     // result, add it to the end (TODO, dont allow limit in single queries)
-    if (!_isMulti && !commands.contains('limit')) commands.add('limit 1');
+    if (!_isMulti &&
+        !_isModify &&
+        _filter == null &&
+        !commands.contains('limit')) commands.add('limit 1');
 
     return commands.join(' ');
   }
 
   // Executes a query that will return a single Future
   Future _singleExec() async {
-    mysql.Results results = await _execQuery();
-    var fields = results.fields.map((f) => f.name);
+    var results = await _execQuery();
 
-    // Get the rows to a list so we can know if is empty
-    // This is very unfortunate, hope to find something better
-    List rows = await results.toList();
+    if (_isModify) {
+      // Somehow its a stream of streams?
+      return results;
+    } else {
+      var fields = results.fields.map((f) => f.name);
 
-    return rows.isEmpty
-        ? new Future.value() // Return emtpy future
-        : new Stream.fromIterable(rows)
-            .map((row) => new Map.fromIterables(fields, row))
-            .map((row) => Metadata.unwrap('User', row))
-            .first;
+      // Get the rows to a list and map it as otherwise its
+      // just not possible to know if it is empty to take the `first`
+      List rows = await results
+          .map((row) => new Map.fromIterables(fields, row))
+          .map((row) => Metadata.unwrap('User', row))
+          .where((user) => _filter != null ? _filter(user) : true)
+          .toList();
+
+      return new Future.value(!rows.isEmpty ? rows.first : null);
+    }
   }
 
   // Executes a query that will return a Stream, hence the generator
   Stream _multiExec() async* {
     var results = await _execQuery();
 
-    if (_isModify) {
-      yield results;
-    } else {
-      var fields = results.fields.map((f) => f.name);
+    var fields = results.fields.map((f) => f.name);
 
-
-      yield* results
-          .map((row) => new Map.fromIterables(fields, row))
-          .map((row) => Metadata.unwrap('User', row));
-    }
+    yield* results
+        .map((row) => new Map.fromIterables(fields, row))
+        .map((row) => Metadata.unwrap('User', row))
+        .where((user) => _filter != null ? _filter(user) : true);
   }
 
   // Executes a query
@@ -136,31 +184,43 @@ class MysqlQueryExecutor {
 
     // If modify unfortunately a List<Results> is returned... so a List<Stream>
     // which literally just has an id per stream so I cant accept that. Need to
-    // squash them into a single stream of ids. Frankly the ids should be
+    // squash them into a single list of ids. Frankly the ids should be
     // injected back into the entities
     if (_isModify) {
       var results = [];
       List res = await q.executeMulti(_values);
-      res.forEach((result) {
-        results.add(result.insertId);
-      });
 
-      q.close();
-      return new Stream.fromIterable(results);
+      if (_isInsert) {
+        for (int i=0; i< res.length; i++) {
+          var id = res[i].insertId;
+
+          // Add the result back in
+          results.add(id);
+          _entities[i].id = id;
+        }
+      } else {
+        // Return the sum of the affected rows
+        return res.fold(0,(prev,curr) => curr.affectedRows + prev);
+      }
+
+      await q.close();
+      return new Future.value(results);
     } else {
       var results = await q.execute(_values);
 
-      q.close();
+      await q.close();
       return results;
     }
   }
 
-  get _isMulti => _chain.action == 'findAll' || _isModify;
+  get _isMulti => _chain.action == 'findAll';
+  get _isInsert => _chain.action == 'insert' || _chain.action == 'insertAll';
   get _isModify =>
-      _chain.action == 'insert' ||
-      _chain.action == 'insertAll' ||
+      _isInsert ||
       _chain.action == 'update' ||
-      _chain.action == 'updateAll';
+      _chain.action == 'updateAll' ||
+      _chain.action == 'remove' ||
+      _chain.action == 'removeAll';
 
   // Returns the operator for sql
   String _mapOperator(cmd) {
@@ -195,11 +255,20 @@ class MysqlQueryExecutor {
 
   get _actionCommand {
     switch (_chain.action) {
+      case 'get':
       case 'find':
       case 'findAll':
         return 'select * from ${_chain.resource}';
       case 'insert':
+      case 'insertAll':
         return 'insert into ${_chain.resource}';
+      case 'update':
+      case 'updateAll':
+        return 'update ignore ${_chain.resource} set';
+      case 'remove':
+      case 'removeAll':
+        return 'delete from ${_chain.resource}';
+
     }
   }
 

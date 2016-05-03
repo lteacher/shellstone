@@ -35,7 +35,7 @@ class MysqlAdapter extends DatabaseAdapter {
   Future connect() {}
 
   /// Close any connections
-  Future disconnect() async => await pool.closeConnectionsNow();
+  Future disconnect() async => await pool.closeConnectionsWhenNotInUse();
 
   // TODO: For later release
   Future build() {}

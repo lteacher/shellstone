@@ -102,6 +102,7 @@ Future _runAdapters() {
   ctrl.add('configure');
   ctrl.add('connect');
   ctrl.add('build');
+  ctrl.close();
 
   // Return
   return Future.wait(results);

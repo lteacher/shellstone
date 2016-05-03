@@ -3,6 +3,8 @@ import 'tokens/indentifier.dart';
 import 'tokens/query.dart';
 import 'tokens/runnable.dart';
 import 'tokens/insertion.dart';
+import 'tokens/removal.dart';
+import 'tokens/update.dart';
 import '../../metadata/annotations.dart';
 import '../../metadata/metadata.dart';
 
@@ -42,14 +44,22 @@ class QueryAction {
       _init('insert', new Insertion(_chain, [entity]));
 
   /// Insert a collection of entities
-  MultipleResultRunnable insertAll(List<dynamic> entities) =>
+  SingleResultRunnable insertAll(List<dynamic> entities) =>
       _init('insertAll', new Insertion(_chain, entities));
 
   /// Update a given entity
   SingleResultRunnable update(dynamic entity) =>
-      _init('update', new Query(_chain));
+      _init('update', new Update(_chain, [entity]));
 
   /// Update a collection of entities
-  MultipleResultRunnable updateAll(List<dynamic> entities) =>
-      _init('updateAll', new Query(_chain));
+  SingleResultRunnable updateAll(List<dynamic> entities) =>
+      _init('updateAll', new Update(_chain, entities));
+
+  /// Remove a single entity
+  SingleResultRunnable remove(dynamic entity) =>
+      _init('remove', new Removal(_chain, [entity]));
+
+  /// Remove a collection of entities
+  SingleResultRunnable removeAll(List<dynamic> entities) =>
+      _init('removeAll', new Removal(_chain, entities));
 }
