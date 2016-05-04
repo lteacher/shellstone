@@ -1,67 +1,80 @@
 # Shellstone
 
-> Inspired by Shelf, Redstone and js frameworks like Sails. Shellstone is a
-> framework to simplify server development via auto routing, ORM and other
-> features.
+> Inspired by Shelf, Redstone and js frameworks like Sails, Shellstone is a
+> server side framework to provide a form of ORM, routing and other various
+> features
 
 [![Build Status](https://api.travis-ci.org/lessonteacher/shellstone.svg?branch=master)](https://travis-ci.org/lessonteacher/shellstone)
 [![Join the chat at https://gitter.im/lessonteacher/shellstone](https://badges.gitter.im/lessonteacher/shellstone.svg)](https://gitter.im/lessonteacher/shellstone?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-_**Note**: This is a currently a WIP. There is a milestone to track the first usable
-release so if you want to contribute I will be trying very hard to make that easy. In the development phase I will leave the below heading and description until clearer, finalised documentation can be provided in its stead_
+_**Note**: This is a currently a WIP. You could technically use the current version if all your models are so simple and have a key of 'id' but otherwise I would suggest holding out for a later release. I have published this basic version in case anyone thinks the idea is good and wants to contribute._
 
-## Preface
+## State
 
-Dart is a really great language. However, it lacks the sheer quantity
-of community packages and support that Javascript has with NodeJS + NPM etc.
+At this time only a very simple form of ORM is provided with a mysql adapter. The project is actively being developed and will be a lot more functional very soon. The examples provided all work but the lack of features would be quite problematic if you needed a rich schema.
 
-Instead of `npm init`ializing another package, it seemed like a good idea to try and contribute to the Dart community instead in the hopes that more people will use such a nice language.
+#### Startup
 
-## Planned Usage
-
-The following section indicates the usage concepts that are imagined so far. These are potentially changing so they are definitely not final but at least they provide a relatively nice guide.
-
-#### Modelling
+To use any of the annotations below, Shellstone must run and scan in the metadata. Its started using the following example
 
 ```dart
-import '../lib/shellstone.dart';
+import 'package:shellstone/shellstone.dart';
 
-// Models can be defined with annotations
-@Model('user')
-class User {
-  // Attributes are specified in the same way
-  @Attr(type: 'integer', primaryKey: true) int id;
-  @Attr(type: 'string') int username;
-  @Attr(type: 'string') int password;
-  @Attr(type: 'boolean') bool archived;
-
-  // Relations to come (this annotation is conceptual)
-  @Rel('1:n') List<Role> roles;
+main() async {
+  await strapIn();
 }
 ```
 
-#### Enhanced Modelling
+#### Models
+
+Currently you can create models by annotating a plain dart object per the following.
 
 ```dart
-@Model('person')
-class Person extends BaseModel with Transactional {
-  //<== CONCEPTS
-  // @Attr(column: '_id') int id;   Provided by BaseModel
-  // @Attr() DateTime createdAt;    ^^
-  // @Attr() DateTime updatedAt;    ^^
+import 'package:shellstone/shellstone.dart';
 
-  // save();          Provided by Transactional
-  // rollback();      ^^
+// Annotate this class as being a Model class with identity user
+@Model('user', dataSource: 'mysql')
+class Person {
 
+  // Create the attributes. They usethe @Attr annotation
+  @Attr(type: 'integer') int id;
+  @Attr(type: 'string') String username;
+  @Attr(type: 'string') String password;
   @Attr(type: 'string') String firstName;
   @Attr(type: 'string') String lastName;
 }
+```
 
+#### Events
+
+You can use `Hooks` and `Listen`ers to perform functions when an event occurs. For example to set the credentials during configure you can use a hook. Hooks can intercept an event's data
+
+```dart
+import 'package:shellstone/shellstone.dart';
+
+@Hook(Adapter.configure)
+setCredentials(event) {
+  var adapter = event.data;
+
+  adapter.user = 'root';
+  adapter.password = 'root';
+  adapter.host = '127.0.0.1';
+  adapter.db = 'test';
+}
+```
+
+There are also listeners which you can do something special with
+
+```dart
+@Listen(Adapter.configure)
+doSomethingSpecial(event) {
+  // Who knows what, log stuff?
+}
 ```
 
 #### Data Access
 
-The query language structure should look something like the following:
+The query language structure should looks something like the following:
 
 ```dart
 main() async {
@@ -76,9 +89,22 @@ main() async {
 
   // Find all users
   Stream<User> users = await Model.findAll('User').run();
+
+  /* NOTE: This section is changing in next release */
+  List ids = await Model.insert(user).run();
+
+  // Update the given user
+  int modified = await Model.update(user).run();
+
+  // Remove the user
+  modified = await Model.remove(user).run();
 }
 ```
 
+Take a look at the tests for more examples
+
 ## Contributing
 
-I would be happy for any contributions so to try and make that as easy as possible most features will be listed in the issues. Milestones will describe an aim, the issue will describe the feature and allow for discussion. Obviously branches will link to the feature. Features will probably be merged to the Milestone. I may end up just typing to myself... but just in case, it should be very clear :)
+I wanted to create this project because I think dart is a really great language. Instead of `npm init`ializing another package, it seemed like a good idea to try and contribute to the Dart community instead.
+
+I would be happy for any contributions so to try and make that as easy as possible I will be talking to myself in the issues about ideas and plans so that would also be a good place to look and know what is coming. Since the project is still far off being really usable I am breaking up ideas as features and working them into a milestone branch. Once a good base is there then will change the approach.
