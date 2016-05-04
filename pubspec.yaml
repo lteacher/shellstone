@@ -4,7 +4,8 @@ homepage: https://github.com/lessonteacher/shellstone
 authors:
 - Hugo Armstrong <@lessonteacher>
 description:
-  A server
+  Inspired by Shelf, Redstone and js frameworks like Sails, Shellstone is a server
+  side framework to provide a form of ORM, routing and other various features
 
 environment:
     sdk: ">=1.8.0 <2.0.0"
