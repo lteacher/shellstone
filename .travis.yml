@@ -13,4 +13,4 @@ deploy:
   provider: script
   script: ./tool/publish.sh
   on:
-    tags: true
+    branch: master
