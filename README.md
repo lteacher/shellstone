@@ -74,7 +74,7 @@ doSomethingSpecial(event) {
 
 #### Data Access
 
-The query language structure should looks something like the following:
+The query language structure looks like the following simple examples:
 
 ```dart
 main() async {
