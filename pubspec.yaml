@@ -4,14 +4,15 @@ homepage: https://github.com/lessonteacher/shellstone
 authors:
 - Hugo Armstrong <@lessonteacher>
 description:
-  An attempt at producing a Redstone / Shelf based package to also do some ORM
-  functionality
+  A server
+
+environment:
+    sdk: ">=1.8.0 <2.0.0"
 
 dependencies:
-  smoke: '^0.3.6+2'
-  redstone: '0.6.5'
-  sqljocky: '0.14.1'
+  collection: '>=1.5.1 <2.0.0'
+  sqljocky: '>=0.14.1 <0.15.0'
+  quiver: '>=0.22.0 <0.23.0'
 dev_dependencies:
   test: '^0.12.0'
   matcher: '0.12.0+2'
-  grinder: "^0.8.0+2"

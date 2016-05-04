@@ -1,16 +1,16 @@
 import 'package:test/test.dart';
-import '../lib/shellstone.dart';
-import 'setups.dart';
+import 'package:shellstone/shellstone.dart';
+import 'test_setups.dart';
 
 main() {
   setUp(() {
     // Start shellstone to setup any annotations
-    Shellstone.setup();
+    strapIn();
   });
 
   group('Metadata', () {
     test('Metadata.proxy(name) returns a ModelProxy object', () {
-      expect(Metadata.proxy('User'), new isInstanceOf<ModelProxy>());
+      expect(Metadata.get(Model,'User'), new isInstanceOf<ModelMetadata>());
     });
 
     test('Metadata.model(name) has a reference to the Model class', () {
@@ -45,7 +45,7 @@ main() {
 
     // Cant get this one to match for some reason
     // test('Unknown Model type throws error', () {
-    //   expect(Metadata.name(const Symbol('Explode')), throws);
+    //   expect(Metadata.name(const Symbol('Explode')), throwsA(new isInstanceOf<Exception>()));
     // });
   });
 }

@@ -1,11 +1,16 @@
 import 'dart:mirrors';
 import 'package:test/test.dart';
-import 'setups.dart';
+import 'package:shellstone/shellstone.dart';
+import 'test_setups.dart';
 
 main() {
+  setUp(() {
+    // Start shellstone to setup any annotations
+    strapIn();
+  });
   group('Annotations', () {
     test('@Model(resource:String) can set the resource for the model', () {
-      expect(model.resource,equals('user'));
+      expect(model.resource,equals('person'));
     });
 
     test('@Model(dataSource:String) can set the connection for the model', () {
@@ -29,14 +34,19 @@ main() {
     });
 
     test('@Attr(column:String) sets an attribute column', () {
-      expect(attr('username').column,equals('user_name'));
+      expect(attr('firstName').column,equals('FirstName'));
+    });
+
+    test('@Adapter(name) sets the adapter name', () {
+      expect(dbAdapter.name,equals('mongo'));
     });
   });
 }
 
 // Get the user model reflectee
-dynamic get model => reflectClass(User).metadata.first.reflectee;
+dynamic get model => reflectClass(Person).metadata.first.reflectee;
 dynamic attr(name) {
-  var att = reflectClass(User).declarations[new Symbol(name)]; //metadata.first.reflectee;
+  var att = reflectClass(Person).declarations[new Symbol(name)]; //metadata.first.reflectee;
   return att.metadata.first.reflectee;
 }
+dynamic get dbAdapter => reflectClass(CustomMongoAdapter).metadata.first.reflectee;
