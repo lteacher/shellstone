@@ -1,22 +1,23 @@
 import 'metadata.dart';
 import '../datalayer/querylang.dart';
-import '../notification/events.dart';
-import '../notification/event_registration.dart';
+import '../events/event_registration.dart';
 
 /// An annotation to represent the metadata of a Model.
 ///
 /// Essentially the annotation defines a collection or table and the relevant
 /// properties for interacting with that particular model
 class Model {
+  /// The name of the table or collection
   final String resource;
-  final String dataSource;
-  final bool autoCreatedAt;
-  final bool autoUpdatedAt;
 
-  const Model(this.resource,
-      {this.dataSource: 'mysql',
-      this.autoCreatedAt: true,
-      this.autoUpdatedAt: true});
+  /// The name of the source, e.g. `mysql`, or `mongo` or even `customSrc`
+  final String source;
+
+  /// The form of migration strategy, currently supported are `safe` and `drop`
+  final String migration;
+
+  /// Constructs a [Model] const with the given values
+  const Model(this.resource, {this.source, this.migration:'safe'});
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///
@@ -62,10 +63,30 @@ class Model {
 /// at the data access layer.
 class Attr {
   final String type;
-  final String column;
+  final String field;
   final bool primaryKey;
+  final bool unique;
+  final int length;
+  final bool index;
+  final bool autoIncr;
 
-  const Attr({this.type, this.column, this.primaryKey});
+  /// The const constructor for the [Attr] class
+  ///
+  /// - [type] is the data type, e.g. string. It defaults to being inferred
+  /// - [field] is the field name or column name in some collection / table
+  /// - [primaryKey] is true if this field is a primary key
+  /// - [unique] is true if this field should be unique
+  /// - [length] is the length that a field should take up in the DB,
+  /// ignored if not supported in the underlying db
+  /// - [autoIncr] is set to true if you want the field to auto increment
+  const Attr(
+      {this.type,
+      this.field,
+      this.primaryKey: false,
+      this.unique: false,
+      this.index: false,
+      this.length,
+      this.autoIncr:false});
 }
 
 /// An annotation to indicate the existence of a Database Adapter
@@ -80,10 +101,14 @@ class Adapter {
   /// The [name] is the database name, for exampe 'mongo' or 'mysql' etc
   const Adapter(this.name);
 
-  static const EventRegistration configure = const EventRegistration(Adapter,'configure');
-  static const EventRegistration connect = const EventRegistration(Adapter,'connect');
-  static const EventRegistration build = const EventRegistration(Adapter,'build');
-  static const EventRegistration disconnect = const EventRegistration(Adapter,'disconnect');
+  static const EventRegistration configure =
+      const EventRegistration(Adapter, 'configure');
+  static const EventRegistration connect =
+      const EventRegistration(Adapter, 'connect');
+  static const EventRegistration build =
+      const EventRegistration(Adapter, 'build');
+  static const EventRegistration disconnect =
+      const EventRegistration(Adapter, 'disconnect');
   // static const EventRegistration query = const EventRegistration(Adapter,'query');
 }
 
@@ -92,7 +117,7 @@ abstract class Handler {
   final String loc;
   final EventRegistration reg;
 
-  const Handler(this.reg,[this.loc='pre']);
+  const Handler(this.reg, [this.loc = 'pre']);
 }
 
 /// An annotation to set a listener for a particular event
@@ -102,7 +127,7 @@ abstract class Handler {
 class Listen extends Handler {
   const Listen(EventRegistration reg) : super(reg);
   const Listen.pre(EventRegistration reg) : super(reg);
-  const Listen.post(EventRegistration reg) : super(reg,'post');
+  const Listen.post(EventRegistration reg) : super(reg, 'post');
 }
 
 /// An annotation to set a hook in for a particular event
@@ -113,5 +138,5 @@ class Listen extends Handler {
 class Hook extends Handler {
   const Hook(EventRegistration reg) : super(reg);
   const Hook.pre(EventRegistration reg) : super(reg);
-  const Hook.post(EventRegistration reg) : super(reg,'post');
+  const Hook.post(EventRegistration reg) : super(reg, 'post');
 }

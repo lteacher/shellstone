@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'events.dart';
-import '../util/globals.dart';
-import '../notification/event_registration.dart';
+import 'event_registration.dart';
+import '../internal/globals.dart';
 
 /// Dispatches events for the shellstone framework
 class EventDispatcher {

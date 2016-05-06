@@ -2,7 +2,7 @@ import 'dart:async';
 import '../lib/shellstone.dart';
 // import 'package:sqljocky/sqljocky.dart';
 
-@Model('user', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
+@Model('user', source: 'mysql')
 class User {
   @Attr()
   String id;
@@ -18,12 +18,9 @@ class User {
 
 @Hook(Adapter.configure)
 setCredentials(event) {
-  var conn = event.data;
+  var user = new User()..firstName = 'Bill';
 
-  conn.user = 'root';
-  conn.password = 'root';
-  conn.host = '127.0.0.1';
-  conn.db = 'test';
+var map = new EntityWrapper(user).wrap();
 }
 
 main() async {

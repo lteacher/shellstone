@@ -1,29 +1,35 @@
 import 'dart:mirrors';
+import 'entity_builder.dart';
+import 'entity_definition.dart';
 import '../metadata/annotations.dart';
 import '../metadata/metadata.dart';
-import 'entity_builder.dart';
+import '../datalayer/schema.dart';
 
 /// Wraps an entity up to match its metadata [Model] and [Attr] descriptors
 ///
 /// The class can also be accessed by using the [Metadata.wrap] and [Metada.unwrap]
 /// methods just for convenience sake.
 class EntityWrapper {
-  static Map<Type, List<String>> _fieldCache = new Map();
-
-  dynamic entity;
-  String name;
-  Map attributes;
+  String _name;
+  dynamic _entity;
+  EntityDefinition _def;
+  Schema _schema;
   InstanceMirror _reflectee;
 
-  /// At least [entity] or [name] must be provided on construction
-  EntityWrapper({this.entity, this.name}) {
-    if (entity == null && name == null)
-      throw 'At least one arg must be provided to the EntityWrapper';
+  /// A String name or an entity is provided to this constructor
+  EntityWrapper(dynamic entity) {
+    if (entity is String) {
+      _name = entity;
+      _def = EntityBuilder.getDefinition(_name);
+      _entity = EntityBuilder.create(_name);
+    } else {
+      _entity = entity;
+      _def = EntityBuilder.getDefinition(entity.runtimeType.toString());
+      _name = _def.name;
+    }
 
-    if (entity == null) entity = EntityBuilder.create(name);
-    if (name == null) name = Metadata.name(entity);
-    attributes = Metadata.attr(name);
-    _reflectee = reflect(entity);
+    _reflectee = reflect(_entity);
+    _schema = Schema.get(_name);
   }
 
   /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
@@ -36,7 +42,7 @@ class EntityWrapper {
       Attr attr = attributes[field];
 
       // Set the property name
-      var property = attr.field != null ? attr.field : field;
+      var property = attr.field ?? field;
       var value = _reflectee.getField(new Symbol(field)).reflectee;
 
       // Set the value, null or not
@@ -53,16 +59,16 @@ class EntityWrapper {
       var field = _getAttrField(f);
 
       if (field != null) {
-        var type = _getType(field);
+        var type = _def.fieldType(field).toString();
 
         _reflectee.setField(new Symbol(field), _coerceType(type, value));
       }
     });
 
-    return entity;
+    return _entity;
   }
 
-  // Convert some type, this is primitive. TODO: Do something better here
+  // Convert some type
   _coerceType(type, value) {
     if (value == null) return value;
 
@@ -84,10 +90,10 @@ class EntityWrapper {
     // If this field is in the attributes then it can be returned directly
     if (attributes.containsKey(field)) return field;
 
-    // Otherwise we need to search for the column which sucks big time
+    // Otherwise we need to search for the field which sucks big time
     var result;
     attributes.forEach((n, attr) {
-      if (attr.column == field) {
+      if (attr.field == field) {
         result = n;
         return;
       }
@@ -96,26 +102,6 @@ class EntityWrapper {
     return result;
   }
 
-  // Get the fields of an object in string form
-  Iterable get fields {
-    // Return from the cache if its in there
-    if (_fieldCache.containsKey(entity.runtimeType))
-      return _fieldCache[entity.runtimeType];
-
-    var results = _reflectee.type.declarations;
-    var fields = [];
-
-    results.forEach((field, instance) {
-      if (instance is VariableMirror) fields.add(MirrorSystem.getName(field));
-    });
-
-    return _fieldCache[entity.runtimeType] = fields;
-  }
-
-  // Ugh, get a field type out via query
-  String _getType(field) {
-    var result = fields.firstWhere((f) => f == field);
-
-    return result.runtimeType.toString();
-  }
+  get fields => _def.fieldNames;
+  get attributes => _schema.fields;
 }

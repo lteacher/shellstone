@@ -10,9 +10,8 @@ class QueryRunner implements SingleResultRunnable, MultipleResultRunnable {
   /// Runs the query chain
   dynamic run() {
     // Get all the random stuff needed
-    Model model = _chain.model;
-    var dataSource = model.dataSource;
-    var adapter = adapters(dataSource);
+    var source = _chain.source;
+    var adapter = adapters(source);
 
     // Return the result of the query adapter run
     return adapter.execute(_chain);

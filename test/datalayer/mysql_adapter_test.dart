@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'dart:async';
 import 'package:shellstone/shellstone.dart';
-import 'test_setups.dart';
+import '../test_setups.dart';
 
 main() {
   setUp(() {

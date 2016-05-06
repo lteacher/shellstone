@@ -2,26 +2,27 @@ library shellstone;
 
 // Imports
 import 'dart:async';
-import 'src/util/globals.dart';
+import 'src/internal/globals.dart';
 import 'src/datalayer/adapters/mysql/mysql_adapter.dart';
 import 'src/metadata/annotations.dart';
 import 'src/datalayer/database_adapter.dart';
 import 'src/metadata/metadata.dart';
-import 'src/notification/events.dart';
-import 'src/notification/adapter_events.dart';
-import 'src/notification/event_dispatcher.dart';
-import 'src/notification/event_registration.dart';
+import 'src/events/events.dart';
+import 'src/events/adapter_events.dart';
+import 'src/events/event_dispatcher.dart';
+import 'src/events/event_registration.dart';
 
 // Exports
 export 'src/metadata/annotations.dart';
 export 'src/metadata/metadata.dart';
 export 'src/metadata/metadata_proxies.dart';
-export 'src/datalayer/querylang.dart';
 export 'src/datalayer/database_adapter.dart';
-export 'src/util/entity_builder.dart';
-export 'src/util/entity_wrapper.dart';
-export 'src/notification/events.dart';
-export 'src/notification/event_registration.dart';
+export 'src/datalayer/querylang.dart';
+export 'src/datalayer/schema.dart';
+export 'src/events/events.dart';
+export 'src/events/event_registration.dart';
+export 'src/entities/entity_wrapper.dart';
+export 'src/entities/entity_builder.dart';
 
 /// The main [Shellstone] hook - enjoy!
 ///
@@ -30,7 +31,9 @@ export 'src/notification/event_registration.dart';
 /// - Base adapters will be added
 /// - Metadata will be scanned in from any annotations
 /// - Listeners will be hooked up
-strapIn([withAdapters = true]) {
+/// [withAdapters] if set true will create the base adapters
+/// [source] sets the default data source(which can be overridden in the @Model)
+strapIn({withAdapters:true}) {
   // Add base adapters if desired
   if (withAdapters) _addBaseAdapters();
 
@@ -89,12 +92,12 @@ Future _runAdapters() {
   StreamController ctrl = new StreamController.broadcast();
 
   var results = [];
-  _adapters.forEach((key, val) {
+  _adapters.forEach((key, adapter) {
     results.add(ctrl.stream
         .asyncMap((event) => EventDispatcher
-            .trigger(new AdapterEvent(event, val))
+            .trigger(new AdapterEvent(event, adapter))
             .then((v) => event))
-        .listen((event) => invokeMethod(val, event))
+        .listen((event) => invokeMethod(adapter, event))
         .asFuture());
   });
 

@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
-import 'test_setups.dart';
+import '../test_setups.dart';
 
 main() {
   setUp(() {
@@ -17,12 +17,8 @@ main() {
       expect(Metadata.model('User'), new isInstanceOf<Model>());
     });
 
-    test('Model.indentity can be retrieved', () {
+    test('Model.resource can be retrieved', () {
       expect(model.resource, equals('user'));
-    });
-
-    test('Model.autoCreatedAt can be retrieved', () {
-      expect(model.autoCreatedAt, equals(true));
     });
 
     test('Metadata.attr(name) returns an Attr class', () {
