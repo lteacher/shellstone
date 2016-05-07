@@ -30,7 +30,7 @@ main() {
       expect(user.id, equals(1));
     });
 
-    test('Model.insert([users]) can multiple users', () async {
+    test('Model.insert([users]) can insert multiple users', () async {
       var user1 = new User()
         ..username = 'bbill'
         ..password = '54321'

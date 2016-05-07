@@ -55,4 +55,10 @@ class EntityBuilder {
 
     return instance;
   }
+
+  // Get the value of a field on a given entity
+  static dynamic getValue(entity,field) {
+    var mirror = reflect(entity);
+    return mirror.getField(new Symbol(field)).reflectee;
+  }
 }

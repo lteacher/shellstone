@@ -6,7 +6,7 @@ sql="drop database if exists test;
 create database test;
 use test;
 drop table if exists user;
-create table user(
+CREATE TABLE user(
 	id int not null auto_increment,
 	firstName varchar(255),
 	lastName varchar(255),

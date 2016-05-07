@@ -1,5 +1,23 @@
 import 'package:shellstone/shellstone.dart';
 
+@Hook(Adapter.configure)
+setCredentials(event) {
+  var conn = event.data;
+
+  conn.user = 'root';
+  conn.password = 'root';
+  conn.host = '127.0.0.1';
+  conn.db = 'test';
+}
+
+@Model('user')
+class User {
+  @Attr(type: 'integer', primaryKey: true) int id;
+  @Attr(type: 'string') String username;
+  @Attr(type: 'string') String password;
+  @Attr(type: 'string') String firstName;
+  @Attr(type: 'string') String lastName;
+}
 main() async {
   await strapIn();
 }
