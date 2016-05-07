@@ -3,7 +3,8 @@ import 'package:sqljocky/sqljocky.dart' as mysql;
 import 'mysql_adapter.dart';
 import '../../querylang.dart';
 import '../../../metadata/metadata.dart';
-import '../../../util/entity_wrapper.dart';
+// import '../../../entities/entity_wrapper.dart';
+import '../../../entities/entity_builder.dart';
 
 /// A class to encapsulate the query execution logic
 ///
@@ -238,7 +239,7 @@ class MysqlQueryExecutor {
       case 'gt':
         return '>';
       default:
-        '';
+        return '';
     }
   }
 
@@ -250,6 +251,9 @@ class MysqlQueryExecutor {
         return 'and';
       case 'or':
         return op;
+        default:
+          return '';
+
     }
   }
 
@@ -273,6 +277,7 @@ class MysqlQueryExecutor {
   }
 
   _getFields(entity) {
-    return new EntityWrapper(entity: entity).fields;
+    var name = entity.runtimeType.toString();
+    return EntityBuilder.getDefinition(name).fieldNames;
   }
 }

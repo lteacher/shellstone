@@ -1,4 +1,4 @@
-import '../schema.dart';
+import '../schema/schema.dart';
 
 // A helper class for sql building stuffs
 class SqlBuilder {

@@ -2,7 +2,7 @@ import 'dart:mirrors';
 import 'annotations.dart';
 import 'metadata_proxies.dart';
 import 'metadata_scanner.dart';
-import '../util/entity_wrapper.dart';
+import '../entities/entity_wrapper.dart';
 
 /// Encapsulates the utility functions of looking up model annotated data
 ///
@@ -56,17 +56,20 @@ class Metadata {
   /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
   /// form as a map of key values.
   static Map<String, dynamic> wrap(dynamic entity) =>
-      new EntityWrapper(entity: entity).wrap();
+      new EntityWrapper(entity).wrap();
 
   /// Unwraps an entity from its mapped [Model] form.
   static dynamic unwrap(String name, Map<String, dynamic> map) =>
-      new EntityWrapper(name: name).unwrap(map);
+      new EntityWrapper(name).unwrap(map);
 
   /// Scans for relevant metadata. This needs to be called to setup the object
   /// as otherwise lazy initialisation would occur and not be desirable
   scan() {
     _scanner = new MetadataScanner.scan();
   }
+
+  // Gets the model metadata classes out
+  static Map get modelMetadata => _meta._scanner.models;
 
   // Utility to retrieve a Model proxy out
   static _modelProxy(name) {

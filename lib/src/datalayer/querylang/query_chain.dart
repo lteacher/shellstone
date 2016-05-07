@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'query_action.dart';
 import 'query_token.dart';
-import '../schema.dart';
+import '../schema/schema.dart';
 import '../../metadata/annotations.dart';
 
 /// Represents the collection of [QueryToken] objects in the query

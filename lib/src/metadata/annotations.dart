@@ -16,6 +16,10 @@ class Model {
   /// The form of migration strategy, currently supported are `safe` and `drop`
   final String migration;
 
+  // Coming later, this indicates that the model doesn't require a schema?
+  // but first it requires the user to extend the BaseModel
+  final bool schema = true;
+
   /// Constructs a [Model] const with the given values
   const Model(this.resource, {this.source, this.migration:'safe'});
 
@@ -63,7 +67,7 @@ class Model {
 /// at the data access layer.
 class Attr {
   final String type;
-  final String field;
+  final String column;
   final bool primaryKey;
   final bool unique;
   final int length;
@@ -73,7 +77,7 @@ class Attr {
   /// The const constructor for the [Attr] class
   ///
   /// - [type] is the data type, e.g. string. It defaults to being inferred
-  /// - [field] is the field name or column name in some collection / table
+  /// - [column] is the field name or column name in some collection / table
   /// - [primaryKey] is true if this field is a primary key
   /// - [unique] is true if this field should be unique
   /// - [length] is the length that a field should take up in the DB,
@@ -81,7 +85,7 @@ class Attr {
   /// - [autoIncr] is set to true if you want the field to auto increment
   const Attr(
       {this.type,
-      this.field,
+      this.column,
       this.primaryKey: false,
       this.unique: false,
       this.index: false,

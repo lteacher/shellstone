@@ -1,27 +1,4 @@
-import 'dart:async';
-import '../lib/shellstone.dart';
-// import 'package:sqljocky/sqljocky.dart';
-
-@Model('user', source: 'mysql')
-class User {
-  @Attr()
-  String id;
-  @Attr()
-  String firstName;
-  @Attr()
-  String lastName;
-  @Attr()
-  String username;
-  @Attr()
-  String password;
-}
-
-@Hook(Adapter.configure)
-setCredentials(event) {
-  var user = new User()..firstName = 'Bill';
-
-var map = new EntityWrapper(user).wrap();
-}
+import 'package:shellstone/shellstone.dart';
 
 main() async {
   await strapIn();

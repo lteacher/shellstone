@@ -1,6 +1,6 @@
 import 'dart:mirrors';
 import '../internal/globals.dart';
-import '../datalayer/schema.dart';
+import '../datalayer/schema/schema.dart';
 import '../entities/entity_builder.dart';
 import '../../shellstone.dart';
 
@@ -73,9 +73,6 @@ class MetadataScanner {
     if (r.runtimeType == Model) {
       map = models;
       proxy = new ModelMetadata(m, r);
-
-      // Construct the schema which will slam it into the cache
-      new Schema.fromMetadata(name, proxy);
 
       // Load this type now
       EntityBuilder.loadMirror(m);

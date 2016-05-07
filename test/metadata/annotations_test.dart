@@ -26,7 +26,7 @@ main() {
     });
 
     test('@Attr(column:String) sets an attribute column', () {
-      expect(attr('firstName').field,equals('FirstName'));
+      expect(attr('firstName').column,equals('FirstName'));
     });
 
     test('@Adapter(name) sets the adapter name', () {

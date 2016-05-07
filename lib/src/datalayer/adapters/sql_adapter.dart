@@ -1,6 +1,6 @@
 import 'dart:async';
 import '../database_adapter.dart';
-import '../schema.dart';
+import '../schema/schema.dart';
 
 // Contains a base sql database adapter which can be extended
 abstract class SqlAdapter extends DatabaseAdapter {

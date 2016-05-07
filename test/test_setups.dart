@@ -13,9 +13,9 @@ class User {
 @Model('person', source: 'mongo')
 class Person {
   @Attr(type: 'integer', primaryKey: true) int id;
-  @Attr(type: 'string', field: 'FirstName') String firstName;
-  @Attr(type: 'string', field: 'LastName') String lastName;
-  @Attr(type: 'integer', field: 'Age') String age;
+  @Attr(type: 'string', column: 'FirstName') String firstName;
+  @Attr(type: 'string', column: 'LastName') String lastName;
+  @Attr(type: 'integer', column: 'Age') String age;
 }
 
 @Adapter('mongo')
