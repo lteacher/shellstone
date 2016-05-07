@@ -10,7 +10,7 @@ class User {
   @Attr(type: 'string') String lastName;
 }
 
-@Model('person', dataSource: 'mongo', autoCreatedAt: true, autoUpdatedAt: true)
+@Model('person', source: 'mongo')
 class Person {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string', column: 'FirstName') String firstName;

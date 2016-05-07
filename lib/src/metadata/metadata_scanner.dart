@@ -1,5 +1,7 @@
 import 'dart:mirrors';
-import '../util/globals.dart';
+import '../internal/globals.dart';
+import '../datalayer/schema/schema.dart';
+import '../entities/entity_builder.dart';
 import '../../shellstone.dart';
 
 /// Scans the mirror system looking for Shellstone annotations
@@ -57,7 +59,7 @@ class MetadataScanner {
 
       if (!(fn is HandlerFunction))
         throw 'Invalid handler `$name` provided for `${reflectee.runtimeType}`';
-        
+
       // Set the handlers
       addHandler(reflectee.runtimeType, reflectee.reg, fn, reflectee.loc);
     }
@@ -71,6 +73,9 @@ class MetadataScanner {
     if (r.runtimeType == Model) {
       map = models;
       proxy = new ModelMetadata(m, r);
+
+      // Load this type now
+      EntityBuilder.loadMirror(m);
     }
     if (r.runtimeType == Adapter) {
       map = adapters;

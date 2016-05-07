@@ -2,26 +2,29 @@ library shellstone;
 
 // Imports
 import 'dart:async';
-import 'src/util/globals.dart';
+import 'src/internal/globals.dart';
 import 'src/datalayer/adapters/mysql/mysql_adapter.dart';
-import 'src/metadata/annotations.dart';
 import 'src/datalayer/database_adapter.dart';
+import 'src/datalayer/schema/schema.dart';
+import 'src/metadata/annotations.dart';
 import 'src/metadata/metadata.dart';
-import 'src/notification/events.dart';
-import 'src/notification/adapter_events.dart';
-import 'src/notification/event_dispatcher.dart';
-import 'src/notification/event_registration.dart';
+import 'src/events/events.dart';
+import 'src/events/adapter_events.dart';
+import 'src/events/event_dispatcher.dart';
+import 'src/events/event_registration.dart';
 
 // Exports
 export 'src/metadata/annotations.dart';
 export 'src/metadata/metadata.dart';
 export 'src/metadata/metadata_proxies.dart';
-export 'src/datalayer/querylang.dart';
 export 'src/datalayer/database_adapter.dart';
-export 'src/util/entity_builder.dart';
-export 'src/util/entity_wrapper.dart';
-export 'src/notification/events.dart';
-export 'src/notification/event_registration.dart';
+export 'src/datalayer/querylang.dart';
+export 'src/datalayer/schema/schema.dart';
+export 'src/events/events.dart';
+export 'src/events/event_registration.dart';
+export 'src/entities/entity_wrapper.dart';
+export 'src/entities/entity_builder.dart';
+export 'src/models/models.dart';
 
 /// The main [Shellstone] hook - enjoy!
 ///
@@ -30,14 +33,17 @@ export 'src/notification/event_registration.dart';
 /// - Base adapters will be added
 /// - Metadata will be scanned in from any annotations
 /// - Listeners will be hooked up
-strapIn([withAdapters = true]) {
-  // Add base adapters if desired
-  if (withAdapters) _addBaseAdapters();
-
+/// [withAdapters] if set true will create the base adapters
+/// [source] sets the default data source(which can be overridden in the @Model)
+strapIn({withAdapters: true}) {
   // Load and scan for metadata
   new Metadata().scan();
 
-  // Add listeners (probably will happen in the scan above)
+  // Load schemas
+  _loadSchemas();
+
+  // Add base adapters if desired
+  if (withAdapters) _addBaseAdapters();
 
   // Start and run the adapter methods
   return _runAdapters();
@@ -89,12 +95,12 @@ Future _runAdapters() {
   StreamController ctrl = new StreamController.broadcast();
 
   var results = [];
-  _adapters.forEach((key, val) {
+  _adapters.forEach((key, adapter) {
     results.add(ctrl.stream
         .asyncMap((event) => EventDispatcher
-            .trigger(new AdapterEvent(event, val))
+            .trigger(new AdapterEvent(event, adapter))
             .then((v) => event))
-        .listen((event) => invokeMethod(val, event))
+        .listen((event) => invokeMethod(adapter, event))
         .asFuture());
   });
 
@@ -110,6 +116,24 @@ Future _runAdapters() {
 
 /// Adds in all the base adapters
 _addBaseAdapters() {
-  // Which is only mysql at the moment
-  addAdapter('mysql', new MysqlAdapter());
+  var schemas = Schema.getAll();
+
+  // For each schema
+  schemas.forEach((schema) {
+    var src = schema.source;
+    // If the adapter isnt set already for this source
+    if (adapters(src) == null) {
+      // Setup the base adapters, which is only mysql right now
+      if (src == 'mysql') addAdapter(src, new MysqlAdapter());
+    }
+  });
+}
+
+// Loads schemas from all the model proxies. This used to occur in the scanner
+// but moved it so that fields can be loaded which will be nicer to happen up front
+_loadSchemas() {
+  var meta = Metadata.modelMetadata;
+
+  // Construct the schema which will slam it into the cache
+  meta.forEach((name, proxy) => new Schema.fromMetadata(name, proxy));
 }

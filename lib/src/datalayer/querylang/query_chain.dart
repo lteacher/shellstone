@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'query_action.dart';
 import 'query_token.dart';
+import '../schema/schema.dart';
 import '../../metadata/annotations.dart';
 
 /// Represents the collection of [QueryToken] objects in the query
@@ -27,6 +28,9 @@ class QueryChain<QueryToken> extends DelegatingList<QueryToken> {
 
   /// The resource name, e.g. 'user'
   String get resource => _qryAction.model.resource;
+
+  // The Data source
+  String get source => Schema.get(entity).source;
 
   /// A [Model] object for the query
   Model get model => _qryAction.model;

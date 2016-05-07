@@ -1,30 +1,4 @@
-import 'dart:async';
-import '../lib/shellstone.dart';
-// import 'package:sqljocky/sqljocky.dart';
-
-@Model('user', dataSource: 'mysql', autoCreatedAt: true, autoUpdatedAt: true)
-class User {
-  @Attr()
-  String id;
-  @Attr()
-  String firstName;
-  @Attr()
-  String lastName;
-  @Attr()
-  String username;
-  @Attr()
-  String password;
-}
-
-@Hook(Adapter.configure)
-setCredentials(event) {
-  var conn = event.data;
-
-  conn.user = 'root';
-  conn.password = 'root';
-  conn.host = '127.0.0.1';
-  conn.db = 'test';
-}
+import 'package:shellstone/shellstone.dart';
 
 main() async {
   await strapIn();

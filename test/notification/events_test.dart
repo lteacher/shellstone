@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
-import 'test_setups.dart';
+import '../test_setups.dart';
 
 main() {
   setUp(() {
