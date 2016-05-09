@@ -46,7 +46,6 @@ class EntityWrapper {
       var property = attr.column ?? field;
       var value = _reflectee.getField(new Symbol(field)).reflectee;
 
-      // Set the value, null or not
       result[property] = _coerceType(attr.type, value);
     });
 
@@ -85,7 +84,7 @@ class EntityWrapper {
         return value is double ? value : double.parse(value);
       case 'datetime':
       case 'DateTime':
-        // return new DateTime() TODO: Implement this
+      // return new DateTime() TODO: Implement this
       default:
         return value;
     }

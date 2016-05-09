@@ -6,7 +6,10 @@ services:
   - docker
 
 before_install:
+  # Shut down this stuff if its there so it doesnt ruin docker town
+  - sudo /etc/init.d/postgresql stop
   - docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql
+  - docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=root -d postgres
   - chmod +x ./tool/travis.sh ./tool/publish.sh
 
 deploy:

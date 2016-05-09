@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:sqljocky/sqljocky.dart' as mysql;
 import 'mysql_query_executor.dart';
-import '../../database_adapter.dart';
+import '../sql_adapter.dart';
+import '../../querylang.dart';
 
-class MysqlAdapter extends DatabaseAdapter {
+class MysqlAdapter extends SqlAdapter {
   mysql.ConnectionPool conn;
 
   MysqlAdapter() {
@@ -11,7 +12,7 @@ class MysqlAdapter extends DatabaseAdapter {
     password = 'root';
     host = 'localhost';
     port = 3306;
-    db = 'shellstone';
+    db = 'test';
   }
 
   // Name getter
@@ -41,8 +42,12 @@ class MysqlAdapter extends DatabaseAdapter {
   Future build() {}
 
   /// Returns an sqljocky connection
-  Future<mysql.RetainedConnection> get driver async => await pool.getConnection();
+  Future<mysql.RetainedConnection> get driver async =>
+      await pool.getConnection();
 
   // The query execution method
-  execute(chain) => new MysqlQueryExecutor(this,chain).execute();
+  execute(chain) => new MysqlQueryExecutor(this, chain).execute();
+
+  // Execute some sql
+  executeSql(String sql) => new MysqlQueryExecutor(this, new QueryChain()).executeSql(sql);
 }

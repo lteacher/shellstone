@@ -8,9 +8,7 @@ abstract class SqlAdapter extends DatabaseAdapter {
   Future build() {
     // Get all the schemas of this DB type
     List schemas =
-        Schema.getAll().where((schema) => schema.source == this.name);
-
-
+    Schema.getAll().where((schema) => schema.source == this.name);
   }
 
   // Abstract execute method to be implemented
