@@ -1,17 +1,17 @@
+import 'dart:async';
 import 'package:shellstone/shellstone.dart';
 
-@Hook(Adapter.configure)
-setCredentials(event) {
-  var conn = event.data;
-
-  conn.user = 'root';
-  conn.password = 'root';
-  conn.host = '127.0.0.1';
-  conn.db = 'test';
+@Model('useracc', source: 'postgres')
+class PostgresUser {
+  @Attr(type: 'integer', primaryKey: true) int id;
+  @Attr(type: 'string') String username;
+  @Attr(type: 'string') String password;
+  @Attr(type: 'string') String firstName;
+  @Attr(type: 'string') String lastName;
 }
 
 @Model('user')
-class User {
+class MysqlUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
   @Attr(type: 'string') String password;
@@ -20,6 +20,7 @@ class User {
 }
 main() async {
   await strapIn();
+
 }
 
 // Javascript Examples

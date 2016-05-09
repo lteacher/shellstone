@@ -6,9 +6,10 @@ import 'metadata/metadata_test.dart' as metadata;
 import 'datalayer/querylang_test.dart' as queries;
 import 'entities/entities_test.dart' as entities;
 import 'notification/events_test.dart' as events;
-import 'datalayer/mysql_adapter_test.dart' as mysql;
 import 'models/models_test.dart' as models;
 import 'datalayer/schema_test.dart' as schema;
+import 'datalayer/mysql_adapter_test.dart' as mysql;
+import 'datalayer/postgres_adapter_test.dart' as postgres;
 
 main() {
   adapters.main();
@@ -20,4 +21,5 @@ main() {
   // models.main();
   schema.main();
   mysql.main();
+  postgres.main();
 }

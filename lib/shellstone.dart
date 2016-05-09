@@ -4,6 +4,7 @@ library shellstone;
 import 'dart:async';
 import 'src/internal/globals.dart';
 import 'src/datalayer/adapters/mysql/mysql_adapter.dart';
+import 'src/datalayer/adapters/postgres/postgres_adapter.dart';
 import 'src/datalayer/database_adapter.dart';
 import 'src/datalayer/schema/schema.dart';
 import 'src/metadata/annotations.dart';
@@ -123,8 +124,9 @@ _addBaseAdapters() {
     var src = schema.source;
     // If the adapter isnt set already for this source
     if (adapters(src) == null) {
-      // Setup the base adapters, which is only mysql right now
+      // Setup the base adapters
       if (src == 'mysql') addAdapter(src, new MysqlAdapter());
+      if (src == 'postgres') addAdapter(src, new PostgresAdapter());
     }
   });
 }

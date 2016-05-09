@@ -12,7 +12,7 @@ class MysqlAdapter extends SqlAdapter {
     password = 'root';
     host = 'localhost';
     port = 3306;
-    db = 'shellstone';
+    db = 'test';
   }
 
   // Name getter

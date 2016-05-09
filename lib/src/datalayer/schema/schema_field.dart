@@ -22,10 +22,15 @@ class SchemaField {
   get type => _attr.type ?? _convertType(_def.fieldType(name));
   get autoIncr => _attr.autoIncr;
   get index => _attr.index;
-  get column => _attr.column ?? name;
+  get column => _column;
   get primaryKey => _attr.primaryKey;
   get len => _attr.length ?? 0;
   get unique => _attr.unique;
+
+  // Map column, postgres is case insensitive... hmmm
+  String get _column => _schema.source == 'postgres'
+      ? (_attr.column ?? name).toLowerCase()
+      : _attr.column ?? name;
 
   // Converts a type to a 'schema' type
   String _convertType(Type t) {

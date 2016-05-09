@@ -10,6 +10,24 @@ class User {
   @Attr(type: 'string') String lastName;
 }
 
+@Model('user')
+class MysqlUser {
+  @Attr(type: 'integer', primaryKey: true) int id;
+  @Attr(type: 'string') String username;
+  @Attr(type: 'string') String password;
+  @Attr(type: 'string') String firstName;
+  @Attr(type: 'string') String lastName;
+}
+
+@Model('useracc', source: 'postgres')
+class PostgresUser {
+  @Attr(type: 'integer', primaryKey: true) int id;
+  @Attr(type: 'string') String username;
+  @Attr(type: 'string') String password;
+  @Attr(type: 'string') String firstName;
+  @Attr(type: 'string') String lastName;
+}
+
 @Model('person', source: 'mongo')
 class Person {
   @Attr(type: 'integer', primaryKey: true) int id;
