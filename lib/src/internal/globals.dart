@@ -1,7 +1,7 @@
 import 'dart:mirrors';
 import '../metadata/annotations.dart';
-import '../notification/events.dart';
-import '../notification/event_registration.dart';
+import '../events/events.dart';
+import '../events/event_registration.dart';
 
 /// Contains some stuff that is nice at the `shellstone.dart` level but
 /// I dont want to expose to anyone outside of the library
@@ -33,3 +33,5 @@ addHandler(Type t,reg,f,loc) {
     handlers.add(new EventHandler(loc, reg, f));
   });
 }
+
+final String defaultSource = 'mysql';

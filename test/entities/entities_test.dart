@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
-import 'test_setups.dart';
+import '../test_setups.dart';
 
 main() {
   setUp(() {
@@ -8,7 +8,7 @@ main() {
     strapIn();
   });
 
-  group('Builders', () {
+  group('Entity Utilities', () {
     test('EntityBuilder.create(name) instantiates a Model entity', () {
       expect(EntityBuilder.create('User'), new isInstanceOf<User>());
     });
@@ -30,7 +30,7 @@ main() {
                                   ..lastName = 'Smith'
                                   ..age = '100';
 
-      var map = new EntityWrapper(entity: person).wrap();
+      var map = new EntityWrapper(person).wrap();
       expect(map['FirstName'],equals('Bill'));
       expect(map['LastName'],equals('Smith'));
       expect(map['Age'],equals(100));
@@ -43,7 +43,7 @@ main() {
         'Age':100
       };
 
-      Person person = new EntityWrapper(name: 'Person').unwrap(map);
+      Person person = new EntityWrapper('Person').unwrap(map);
 
       expect(person.firstName,equals('Bill'));
       expect(person.lastName,equals('Smith'));

@@ -13,7 +13,7 @@ class ModelMetadata extends MetadataProxy {
   ModelMetadata(ref, this.model) : super(ref);
 }
 
-/// Wraps a adapter by combining the [DBAdapter], reflectee and [DBEventMeta]
+/// Wraps a adapter by combining the [Adapter] and reflectee
 class AdapterMetadata extends MetadataProxy {
   Adapter adapter;
   InstanceMirror instance;

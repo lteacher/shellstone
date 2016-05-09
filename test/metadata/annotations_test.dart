@@ -1,7 +1,7 @@
 import 'dart:mirrors';
 import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
-import 'test_setups.dart';
+import '../test_setups.dart';
 
 main() {
   setUp(() {
@@ -14,15 +14,7 @@ main() {
     });
 
     test('@Model(dataSource:String) can set the connection for the model', () {
-      expect(model.dataSource,equals('mongo'));
-    });
-
-    test('@Model(autoCreatedAt:bool) sets the auto created option', () {
-      expect(model.autoCreatedAt,equals(true));
-    });
-
-    test('@Model(autoUpdatedAt:bool) sets the auto updated option', () {
-      expect(model.autoUpdatedAt,equals(true));
+      expect(model.source,equals('mongo'));
     });
 
     test('@Attr(type:String) sets an attribute type', () {
