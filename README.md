@@ -7,7 +7,7 @@
 [![Build Status](https://api.travis-ci.org/lessonteacher/shellstone.svg?branch=master)](https://travis-ci.org/lessonteacher/shellstone)
 [![Join the chat at https://gitter.im/lessonteacher/shellstone](https://badges.gitter.im/lessonteacher/shellstone.svg)](https://gitter.im/lessonteacher/shellstone?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-_**Note**: This is a currently a WIP. You could technically use the current version if all your models are so simple and have a key of 'id' but otherwise I would suggest holding out for a later release. I have published this basic version in case anyone thinks the idea is good and wants to contribute._
+_**Note**: This is a currently a WIP. You could technically use the current version if all your models are so simple and dont have any relations but otherwise I would suggest holding out for a later release. I have published this basic version in case anyone thinks the idea is good and wants to contribute._
 
 ## State
 
@@ -37,11 +37,11 @@ import 'package:shellstone/shellstone.dart';
 class Person {
 
   // Create the attributes. They usethe @Attr annotation
-  @Attr(type: 'integer') int id;
-  @Attr(type: 'string') String username;
-  @Attr(type: 'string') String password;
-  @Attr(type: 'string') String firstName;
-  @Attr(type: 'string') String lastName;
+  @Attr(primaryKey: true) int id;
+  @Attr(unique: true) String username;
+  @Attr() String password;
+  @Attr(column: 'firstName') String firstname;
+  @Attr(column: 'lastName') String lastname;
 }
 ```
 
