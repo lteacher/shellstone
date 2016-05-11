@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:shellstone/shellstone.dart';
 
-@Model('useracc', source: 'postgres')
+@Model(name: 'useracc', source: 'postgres')
 class PostgresUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
@@ -10,17 +10,23 @@ class PostgresUser {
   @Attr(type: 'string') String lastName;
 }
 
-@Model('user')
-class MysqlUser {
+@Model(name: 'orders', source: 'postgres')
+class Order {
   @Attr(type: 'integer', primaryKey: true) int id;
-  @Attr(type: 'string') String username;
-  @Attr(type: 'string') String password;
-  @Attr(type: 'string') String firstName;
-  @Attr(type: 'string') String lastName;
+  @Attr() String description;
+  @Attr() double totalCost;
 }
+
 main() async {
   await strapIn();
 
+  // var order = new Order()..totalCost = 134.32.. description = 'Bills awesome order' ;
+  // 
+  // var order = await Model.find('Order').where('totalCost').gt(100).run();
+  //
+  // // var inserted = await Model.insert(order).run();
+  //
+  // print(order?.description);
 }
 
 // Javascript Examples

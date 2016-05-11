@@ -1,4 +1,5 @@
 import 'metadata.dart';
+import 'metadata_proxies.dart';
 import '../datalayer/querylang.dart';
 import '../events/event_registration.dart';
 
@@ -8,7 +9,7 @@ import '../events/event_registration.dart';
 /// properties for interacting with that particular model
 class Model {
   /// The name of the table or collection
-  final String resource;
+  final String name;
 
   /// The name of the source, e.g. `mysql`, or `mongo` or even `customSrc`
   final String source;
@@ -21,43 +22,64 @@ class Model {
   final bool schema = true;
 
   /// Constructs a [Model] const with the given values
-  const Model(this.resource, {this.source, this.migration:'safe'});
+  const Model({this.name, this.source, this.migration:'safe'});
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///
   /// An Identifier provides an [Identifier.id] method which is used to get a
   /// specific [Model] entity by its primary key
-  static Identifier get(name) => new QueryAction(name).get();
+  static Identifier get(Type t) => new QueryAction(_modelName(t)).get();
 
   /// The [find] method is used to find a *single*, or the *first* matching entity
-  static SingleResultQuery find(name) => new QueryAction(name).find();
+  static SingleResultQuery find(Type t) => new QueryAction(_modelName(t)).find();
 
   /// The [findAll] method is used to find a *all* matching entites
-  static MultipleResultQuery findAll(name) => new QueryAction(name).findAll();
+  static MultipleResultQuery findAll(Type t) => new QueryAction(_modelName(t)).findAll();
 
-  /// The [insert] method is used to insert a given entity
-  static SingleResultRunnable insert(entity) =>
-      new QueryAction(Metadata.name(entity)).insert(entity);
+  /// The [findByName] is the same as [find] but using the model name
+  static SingleResultQuery findByName(String name) => new QueryAction(name).find();
 
-  /// The [insertAll] method inserts all the entities in the collection
-  static SingleResultRunnable insertAll(List entities) =>
-      new QueryAction(Metadata.name(entities)).insertAll(entities);
+  /// The [findAllByName] method is used to find a *all* matching entites by model name
+  static MultipleResultQuery findAllByName(String name) => new QueryAction(name).findAll();
 
-  /// The [update] method is used to update an entity if it exists
-  static SingleResultRunnable update(entity) =>
-      new QueryAction(Metadata.name(entity)).update(entity);
+  /// The [insert] method is used to insert a given set of values
+  static SingleResultRunnable insert(Type t, Map values) =>
+      new QueryAction(_modelName(t)).insert(values);
 
-  /// The [updateAll] method updates all of the entities in the [entities] colllection
-  static SingleResultRunnable updateAll(List entities) =>
-      new QueryAction(Metadata.name(entities)).updateAll(entities);
+  /// The [insertByName] is the same as [insert] but by model name
+  static SingleResultRunnable insertByName(String name, Map values) =>
+      new QueryAction(name).insert(values);
 
-  /// The [remove] method is used to insert a given entity
-  static SingleResultRunnable remove(entity) =>
-      new QueryAction(Metadata.name(entity)).remove(entity);
+  /// The [insertFrom] method inserts from an entity or collection of entities
+  static SingleResultRunnable insertFrom(entities) =>
+      new QueryAction(Metadata.name(entities)).insertFrom(entities);
 
-  /// The [removeAll] method inserts all the entities in the collection
-  static SingleResultRunnable removeAll(List entities) =>
-      new QueryAction(Metadata.name(entities)).removeAll(entities);
+  /// The [update] method is used to update an entity where matches
+  static SingleResultQuery update(Type t,Map values) =>
+      new QueryAction(_modelName(t)).update(values);
+
+  /// The [updateByName] is the same as [update] but for a model name
+  static SingleResultQuery updateByName(String name,Map values) =>
+      new QueryAction(name).update(values);
+
+  /// The [updateFrom] method updates from the given entity or entities
+  static SingleResultRunnable updateFrom(entities) =>
+      new QueryAction(Metadata.name(entities)).updateFrom(entities);
+
+  /// The [remove] method is used to remove matching values
+  static SingleResultQuery remove(Type t,Map values) =>
+      new QueryAction(_modelName(t)).remove(values);
+
+  /// The [removeByName] method is used to remove matching for a model name
+  static SingleResultQuery removeByName(String name,Map values) =>
+      new QueryAction(name).remove(values);
+
+  /// The [removeFrom] method is used to insert a given entity or entity col
+  static SingleResultRunnable removeFrom(entities) =>
+      new QueryAction(Metadata.name(entities)).removeFrom(entities);
+
+  // Shortcut to model name from type
+  static String _modelName(Type t) => Metadata.get(ModelMetadata, t).model.name;
 }
 
 /// An annotation to represent the metadata of an Attribute.

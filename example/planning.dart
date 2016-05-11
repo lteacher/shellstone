@@ -1,7 +1,7 @@
 import '../lib/shellstone.dart';
 
 // Models can be defined with annotations
-@Model('user')
+@Model(name: 'user')
 class User {
   // Attributes are specified in the same way
   @Attr(type: 'integer', primaryKey: true) int id;

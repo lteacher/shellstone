@@ -39,27 +39,26 @@ class QueryAction {
   /// Find a collection of entities
   MultipleResultQuery findAll() => _init('findAll', new Query(_chain));
 
-  /// Insert a single entity
-  SingleResultRunnable insert(dynamic entity) =>
-      _init('insert', new Insertion(_chain, [entity]));
+  /// Insert a set of values
+  SingleResultRunnable insert(values) =>
+      _init('insert', new Insertion(_chain, values));
 
-  /// Insert a collection of entities
-  SingleResultRunnable insertAll(List<dynamic> entities) =>
-      _init('insertAll', new Insertion(_chain, entities));
+  SingleResultRunnable insertFrom(entities) =>
+      _init('insert', new Insertion(_chain, entities));
 
   /// Update a given entity
-  SingleResultRunnable update(dynamic entity) =>
-      _init('update', new Update(_chain, [entity]));
+  SingleResultRunnable update(values) =>
+      _init('update', new Update(_chain, values));
 
   /// Update a collection of entities
-  SingleResultRunnable updateAll(List<dynamic> entities) =>
+  SingleResultRunnable updateFrom(entities) =>
       _init('updateAll', new Update(_chain, entities));
 
   /// Remove a single entity
-  SingleResultRunnable remove(dynamic entity) =>
-      _init('remove', new Removal(_chain, [entity]));
+  SingleResultRunnable remove(values) =>
+      _init('remove', new Removal(_chain, values));
 
   /// Remove a collection of entities
-  SingleResultRunnable removeAll(List<dynamic> entities) =>
+  SingleResultRunnable removeFrom(entities) =>
       _init('removeAll', new Removal(_chain, entities));
 }
