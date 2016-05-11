@@ -1,7 +1,7 @@
 import 'package:shellstone/shellstone.dart';
 
 // Used to contain any setup specific files, for example Model definitions
-@Model('user')
+@Model(name: 'user')
 class User {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
@@ -10,7 +10,7 @@ class User {
   @Attr(type: 'string') String lastName;
 }
 
-@Model('user')
+@Model(name: 'user')
 class MysqlUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
@@ -19,7 +19,7 @@ class MysqlUser {
   @Attr(type: 'string') String lastName;
 }
 
-@Model('useracc', source: 'postgres')
+@Model(name: 'useracc', source: 'postgres')
 class PostgresUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
@@ -28,7 +28,7 @@ class PostgresUser {
   @Attr(type: 'string') String lastName;
 }
 
-@Model('person', source: 'mongo')
+@Model(name: 'person', source: 'mongo')
 class Person {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string', column: 'FirstName') String firstName;

@@ -59,7 +59,7 @@ class Schema {
   }
 
   /// Gets the resource name, which is usually a table or collection
-  String get resource => _meta.model.resource;
+  String get resource => _meta.model.name;
 
   /// Gets the source, which would be a database type e.g. `mysql`
   String get source => _meta.model.source ?? defaultSource;

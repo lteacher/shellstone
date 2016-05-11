@@ -27,7 +27,7 @@ class QueryChain<QueryToken> extends DelegatingList<QueryToken> {
   String get action => _qryAction.type;
 
   /// The resource name, e.g. 'user'
-  String get resource => _qryAction.model.resource;
+  String get resource => _qryAction.model.name;
 
   // The Data source
   String get source => Schema.get(entity).source;

@@ -1,6 +1,5 @@
 import 'dart:async';
 import '../sql_executor.dart';
-import '../../../metadata/metadata.dart';
 import '../../../entities/entity_builder.dart';
 
 /// A class to encapsulate the query execution logic
@@ -66,7 +65,7 @@ class MysqlQueryExecutor extends SqlExecutor {
       // just not possible to know if it is empty to take the `first`
       List rows = await results
           .map((row) => new Map.fromIterables(fields, row))
-          .map((row) => Metadata.unwrap(chain.entity, row))
+          .map((row) => EntityBuilder.unwrap(chain.entity, row))
           .where((user) => filter != null ? filter(user) : true)
           .toList();
 
@@ -82,7 +81,7 @@ class MysqlQueryExecutor extends SqlExecutor {
 
     yield* results
         .map((row) => new Map.fromIterables(fields, row))
-        .map((row) => Metadata.unwrap(chain.entity, row))
+        .map((row) => EntityBuilder.unwrap(chain.entity, row))
         .where((user) => filter != null ? filter(user) : true);
   }
 }

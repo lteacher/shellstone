@@ -47,16 +47,16 @@ class QueryAction {
       _init('insert', new Insertion(_chain, entities));
 
   /// Update a given entity
-  SingleResultRunnable update(values) =>
-      _init('update', new Update(_chain, values));
+  SingleResultQuery update(values) =>
+      _init('update', new UpdateQuery(_chain, values));
 
   /// Update a collection of entities
   SingleResultRunnable updateFrom(entities) =>
       _init('updateAll', new Update(_chain, entities));
 
   /// Remove a single entity
-  SingleResultRunnable remove(values) =>
-      _init('remove', new Removal(_chain, values));
+  SingleResultQuery remove() =>
+      _init('remove', new RemovalQuery(_chain, []));
 
   /// Remove a collection of entities
   SingleResultRunnable removeFrom(entities) =>

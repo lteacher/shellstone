@@ -50,7 +50,7 @@ main() {
   });
 }
 
-@Model('user', migration: 'drop')
+@Model(name: 'user', migration: 'drop')
 class NewUser {
 
   @Attr(type: 'integer', primaryKey: true)

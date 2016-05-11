@@ -28,58 +28,40 @@ class Model {
   ///
   /// An Identifier provides an [Identifier.id] method which is used to get a
   /// specific [Model] entity by its primary key
-  static Identifier get(Type t) => new QueryAction(_modelName(t)).get();
+  static Identifier get(name) => new QueryAction(_convert(name)).get();
 
   /// The [find] method is used to find a *single*, or the *first* matching entity
-  static SingleResultQuery find(Type t) => new QueryAction(_modelName(t)).find();
+  static SingleResultQuery find(name) => new QueryAction(_convert(name)).find();
 
   /// The [findAll] method is used to find a *all* matching entites
-  static MultipleResultQuery findAll(Type t) => new QueryAction(_modelName(t)).findAll();
-
-  /// The [findByName] is the same as [find] but using the model name
-  static SingleResultQuery findByName(String name) => new QueryAction(name).find();
-
-  /// The [findAllByName] method is used to find a *all* matching entites by model name
-  static MultipleResultQuery findAllByName(String name) => new QueryAction(name).findAll();
+  static MultipleResultQuery findAll(name) => new QueryAction(_convert(name)).findAll();
 
   /// The [insert] method is used to insert a given set of values
-  static SingleResultRunnable insert(Type t, Map values) =>
-      new QueryAction(_modelName(t)).insert(values);
-
-  /// The [insertByName] is the same as [insert] but by model name
-  static SingleResultRunnable insertByName(String name, Map values) =>
-      new QueryAction(name).insert(values);
+  static SingleResultRunnable insert(name, Map values) =>
+      new QueryAction(_convert(name)).insert(values);
 
   /// The [insertFrom] method inserts from an entity or collection of entities
   static SingleResultRunnable insertFrom(entities) =>
       new QueryAction(Metadata.name(entities)).insertFrom(entities);
 
   /// The [update] method is used to update an entity where matches
-  static SingleResultQuery update(Type t,Map values) =>
-      new QueryAction(_modelName(t)).update(values);
-
-  /// The [updateByName] is the same as [update] but for a model name
-  static SingleResultQuery updateByName(String name,Map values) =>
-      new QueryAction(name).update(values);
+  static SingleResultQuery update(name,Map values) =>
+      new QueryAction(_convert(name)).update(values);
 
   /// The [updateFrom] method updates from the given entity or entities
   static SingleResultRunnable updateFrom(entities) =>
       new QueryAction(Metadata.name(entities)).updateFrom(entities);
 
-  /// The [remove] method is used to remove matching values
-  static SingleResultQuery remove(Type t,Map values) =>
-      new QueryAction(_modelName(t)).remove(values);
-
-  /// The [removeByName] method is used to remove matching for a model name
-  static SingleResultQuery removeByName(String name,Map values) =>
-      new QueryAction(name).remove(values);
+  /// The [remove] method is used to remove entities
+  static SingleResultQuery remove(name) =>
+      new QueryAction(_convert(name)).remove();
 
   /// The [removeFrom] method is used to insert a given entity or entity col
   static SingleResultRunnable removeFrom(entities) =>
       new QueryAction(Metadata.name(entities)).removeFrom(entities);
 
-  // Shortcut to model name from type
-  static String _modelName(Type t) => Metadata.get(ModelMetadata, t).model.name;
+  // Shortcut to convert a type to string if required
+  static String _convert(name) => (name is Type) ? name.toString():name;
 }
 
 /// An annotation to represent the metadata of an Attribute.

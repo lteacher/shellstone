@@ -25,7 +25,7 @@ main() {
         ..firstName = 'Jim'
         ..lastName = 'Jones';
 
-      var insertIds = await Model.insert(user).run();
+      var insertIds = await Model.insertFrom(user).run();
       expect(insertIds.first, equals(1));
       expect(user.id, equals(1));
     });
@@ -44,8 +44,8 @@ main() {
         ..lastName = 'Jones';
       var users = []..add(user1)..add(user2);
 
-      var i1 = await Model.insert(user1).run();
-      var i2 = await Model.insert(user2).run();
+      var i1 = await Model.insertFrom(user1).run();
+      var i2 = await Model.insertFrom(user2).run();
 
       expect(i1.first, equals(2));
       expect(i2.first, equals(3));
@@ -273,7 +273,7 @@ main() {
 
       user.firstName = 'Jane';
       user.lastName = 'Doe';
-      var id = await Model.update(user).run();
+      var id = await Model.updateFrom(user).run();
       user = await Model.get('PostgresUser').id(1).run();
 
       expect(id, equals(1));
@@ -296,7 +296,7 @@ main() {
 
     test('Model.remove(user) removes the given entity', () async {
       PostgresUser user = new PostgresUser()..id = 1;
-      var id = await Model.remove(user).run();
+      var id = await Model.removeFrom(user).run();
       user = await Model.get('PostgresUser').id(1).run();
       expect(id, equals(1));
       expect(user, equals(null));

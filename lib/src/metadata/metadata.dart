@@ -53,15 +53,6 @@ class Metadata {
         : _meta._scanner.adapters.containsKey(name);
   }
 
-  /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
-  /// form as a map of key values.
-  static Map<String, dynamic> wrap(dynamic entity) =>
-      new EntityWrapper(entity).wrap();
-
-  /// Unwraps an entity from its mapped [Model] form.
-  static dynamic unwrap(String name, Map<String, dynamic> map) =>
-      new EntityWrapper(name).unwrap(map);
-
   /// Scans for relevant metadata. This needs to be called to setup the object
   /// as otherwise lazy initialisation would occur and not be desirable
   scan() {

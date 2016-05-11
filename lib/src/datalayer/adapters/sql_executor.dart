@@ -4,7 +4,6 @@ import '../querylang.dart';
 import '../schema/schema.dart';
 import '../../entities/entity_builder.dart';
 import '../../entities/entity_definition.dart';
-import '../../metadata/metadata.dart';
 
 /// Provides some helper functionality that might be useful for sql adapters
 abstract class SqlExecutor {
@@ -134,7 +133,7 @@ abstract class SqlExecutor {
     entities = token.args;
     var fields = fieldNames.where((f) => f != key);
 
-    token.args.map(Metadata.wrap).forEach((Map map) {
+    token.args.map(EntityBuilder.wrap).forEach((Map map) {
       // Capture the key value
       var keyValue = map[key];
 
@@ -171,7 +170,7 @@ abstract class SqlExecutor {
     var result = []..add('(${fields.join(',')})');
     entities = token.args;
 
-    token.args.map(Metadata.wrap).forEach((Map map) {
+    token.args.map(EntityBuilder.wrap).forEach((Map map) {
       // Strip the id out?
       _stripPrimaryKey(map);
 

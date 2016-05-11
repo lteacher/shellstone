@@ -25,7 +25,7 @@ main() {
         ..firstName = 'Jim'
         ..lastName = 'Jones';
 
-      var insertIds = await Model.insert(user).run();
+      var insertIds = await Model.insertFrom(user).run();
       expect(insertIds.first, equals(1));
       expect(user.id, equals(1));
     });
@@ -44,7 +44,7 @@ main() {
         ..lastName = 'Jones';
       var users = []..add(user1)..add(user2);
 
-      var insertIds = await Model.insertAll(users).run();
+      var insertIds = await Model.insertFrom(users).run();
       expect(insertIds, equals([2, 3]));
     });
 
@@ -248,7 +248,7 @@ main() {
 
       user.firstName = 'Jane';
       user.lastName = 'Doe';
-      var id = await Model.update(user).run();
+      var id = await Model.updateFrom(user).run();
       user = await Model.get('User').id(1).run();
 
       expect(id, equals(1));
@@ -261,7 +261,7 @@ main() {
 
       u1.firstName = 'Sam';
       u2.firstName = 'Clint';
-      var id = await Model.updateAll([u1,u2]).run();
+      var id = await Model.updateFrom([u1,u2]).run();
       u1 = await Model.get('User').id(2).run();
       u2 = await Model.get('User').id(3).run();
 
@@ -271,7 +271,7 @@ main() {
 
     test('Model.remove(user) removes the given entity', () async {
       MysqlUser user = new MysqlUser()..id = 1;
-      var id = await Model.remove(user).run();
+      var id = await Model.removeFrom(user).run();
       user = await Model.get('User').id(1).run();
       expect(id, equals(1));
       expect(user, equals(null));
@@ -279,7 +279,7 @@ main() {
 
     test('Model.removeAll([users]) removes the given entities', () async {
       List users = []..add(new MysqlUser()..id = 2)..add(new MysqlUser()..id = 3);
-      var id = await Model.removeAll(users).run();
+      var id = await Model.removeFrom(users).run();
       MysqlUser u1 = await Model.get('User').id(2).run();
       MysqlUser u2 = await Model.get('User').id(3).run();
       expect(id, equals(2));

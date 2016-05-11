@@ -71,6 +71,9 @@ class MetadataScanner {
     MetadataProxy proxy;
 
     if (r.runtimeType == Model) {
+      // If the model has no name give it the class name
+      r.name ??= name;
+
       map = models;
       proxy = new ModelMetadata(m, r);
 

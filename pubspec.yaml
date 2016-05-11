@@ -13,8 +13,11 @@ environment:
 dependencies:
   collection: '>=1.5.1 <2.0.0'
   sqljocky: '>=0.14.1 <0.15.0'
-  postgresql: '>=0.3.3 <0.4.0'
   quiver: '>=0.22.0 <0.23.0'
+  postgresql:
+    git:
+      url: git@github.com:lteacher/dart_postgresql.git
+      ref: feature/#75-multi
 dev_dependencies:
   test: '^0.12.0'
   matcher: '0.12.0+2'

@@ -17,8 +17,8 @@ main() {
       expect(Metadata.model('User'), new isInstanceOf<Model>());
     });
 
-    test('Model.resource can be retrieved', () {
-      expect(model.resource, equals('user'));
+    test('Model.name can be retrieved', () {
+      expect(model.name, equals('user'));
     });
 
     test('Metadata.attr(name) returns an Attr class', () {

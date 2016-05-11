@@ -50,7 +50,7 @@ class PostgresQueryExecutor extends SqlExecutor {
       return results;
     } else {
       List rows = await results
-          .map((row) => Metadata.unwrap(chain.entity, row.toMap()))
+          .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
           .where((user) => filter != null ? filter(user) : true)
           .toList();
 
@@ -75,7 +75,7 @@ class PostgresQueryExecutor extends SqlExecutor {
     });
 
     yield* ctrl.stream
-        .map((row) => Metadata.unwrap(chain.entity, row.toMap()))
+        .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
         .where((user) => filter != null ? filter(user) : true);
   }
 
@@ -84,14 +84,4 @@ class PostgresQueryExecutor extends SqlExecutor {
     result.add('returning $key'); // Add the primary key mapping
     return result;
   }
-
-  // get actionCmd {
-  //   switch (chain.action) {
-  //     case 'update':
-  //     case 'updateAll':
-  //       return 'update ${chain.resource} set';
-  //     default:
-  //       return super.actionCmd;
-  //   }
-  // }
 }

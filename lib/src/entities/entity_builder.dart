@@ -1,5 +1,6 @@
 import 'dart:mirrors';
 import 'entity_definition.dart';
+import 'entity_wrapper.dart';
 import '../metadata/annotations.dart';
 import '../metadata/metadata.dart';
 
@@ -55,6 +56,15 @@ class EntityBuilder {
 
     return instance;
   }
+
+  /// Wraps an [entity] into its mapped [Model] view, e.g. converts it to its annotated
+  /// form as a map of key values.
+  static Map<String, dynamic> wrap(dynamic entity) =>
+      new EntityWrapper(entity).wrap();
+
+  /// Unwraps an entity from its mapped [Model] form.
+  static dynamic unwrap(String name, Map<String, dynamic> map) =>
+      new EntityWrapper(name).unwrap(map);
 
   // Get the value of a field on a given entity
   static dynamic getValue(entity,field) {

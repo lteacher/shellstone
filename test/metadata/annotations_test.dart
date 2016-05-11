@@ -9,11 +9,11 @@ main() {
     strapIn();
   });
   group('Annotations', () {
-    test('@Model(resource:String) can set the resource for the model', () {
-      expect(model.resource,equals('person'));
+    test('@Model(name) can set the resource for the model', () {
+      expect(model.name,equals('person'));
     });
 
-    test('@Model(dataSource:String) can set the connection for the model', () {
+    test('@Model(source:String) can set the connection for the model', () {
       expect(model.source,equals('mongo'));
     });
 
