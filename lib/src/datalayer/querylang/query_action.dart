@@ -44,7 +44,7 @@ class QueryAction {
       _init('insert', new Insertion(_chain, values));
 
   SingleResultRunnable insertFrom(entities) =>
-      _init('insert', new Insertion(_chain, entities));
+      _init('insertFrom', new Insertion(_chain, entities));
 
   /// Update a given entity
   SingleResultQuery update(values) =>
@@ -52,7 +52,7 @@ class QueryAction {
 
   /// Update a collection of entities
   SingleResultRunnable updateFrom(entities) =>
-      _init('updateAll', new Update(_chain, entities));
+      _init('updateFrom', new Update(_chain, entities));
 
   /// Remove a single entity
   SingleResultQuery remove() =>
@@ -60,5 +60,5 @@ class QueryAction {
 
   /// Remove a collection of entities
   SingleResultRunnable removeFrom(entities) =>
-      _init('removeAll', new Removal(_chain, entities));
+      _init('removeFrom', new Removal(_chain, entities));
 }

@@ -30,7 +30,7 @@ main() {
       expect(user.id, equals(1));
     });
 
-    test('Model.insert(user) insert more users as needed for tests', () async {
+    test('Model.insertFrom([users]) can insert multiple users', () async {
       var user1 = new PostgresUser()
         ..username = 'bbill'
         ..password = '54321'
@@ -44,30 +44,9 @@ main() {
         ..lastName = 'Jones';
       var users = []..add(user1)..add(user2);
 
-      var i1 = await Model.insertFrom(user1).run();
-      var i2 = await Model.insertFrom(user2).run();
-
-      expect(i1.first, equals(2));
-      expect(i2.first, equals(3));
+      var insertIds = await Model.insertFrom(users).run();
+      expect(insertIds, equals([2, 3]));
     });
-
-    // test('Model.insert([users]) can insert multiple users', () async {
-    //   var user1 = new PostgresUser()
-    //     ..username = 'bbill'
-    //     ..password = '54321'
-    //     ..firstName = 'Bill'
-    //     ..lastName = 'Bob';
-    //
-    //   var user2 = new PostgresUser()
-    //     ..username = 'cchill'
-    //     ..password = '6789'
-    //     ..firstName = 'Charles'
-    //     ..lastName = 'Jones';
-    //   var users = []..add(user1)..add(user2);
-    //
-    //   var insertIds = await Model.insertAll(users).run();
-    //   expect(insertIds, equals([2, 3]));
-    // });
 
     test('Model.find(`User`).where(f).eq(v) can find the correct user',
         () async {
@@ -187,42 +166,38 @@ main() {
       expect(users, equals(['Charles']));
     });
 
-    // TODO: This test case breaks the whole framework, rewrite is needed now
-    // this is because the id cant be used twice as @id and @id...
-    //
-    // test(
-    //     'Model.findAll(`User`).where(f).complex A... finds the correct two users',
-    //     () async {
-    //   Stream results = await Model
-    //       .findAll('PostgresUser')
-    //       .where('lastName')
-    //       .eq('Jones')
-    //       .and('id')
-    //       .eq(1)
-    //       .or('id')
-    //       .eq(3)
-    //       .run();
-    //   List users = [];
-    //   await results.forEach((user) {
-    //     users.add(user.firstName);
-    //   });
-    //
-    //   expect(users, equals(['Jim', 'Charles']));
-    // });
+    test(
+        'Model.findAll(`User`).where(f).complex A... finds the correct two users',
+        () async {
+      Stream results = await Model
+          .findAll('PostgresUser')
+          .where('lastName')
+          .eq('Jones')
+          .and('id')
+          .eq(1)
+          .or('id')
+          .eq(3)
+          .run();
+      List users = [];
+      await results.forEach((user) {
+        users.add(user.firstName);
+      });
 
-    // SAME AGAIN HERE
-    // test(
-    //     'Model.findAll(`User`).where(f).complex B... finds the correct two users',
-    //     () async {
-    //   Stream results =
-    //       await Model.findAll('PostgresUser').where('id').gt(1).and('id').lt(3).run();
-    //   List users = [];
-    //   await results.forEach((user) {
-    //     users.add(user.firstName);
-    //   });
-    //
-    //   expect(users, equals(['Bill']));
-    // });
+      expect(users, equals(['Jim', 'Charles']));
+    });
+
+    test(
+        'Model.findAll(`User`).where(f).complex B... finds the correct two users',
+        () async {
+      Stream results =
+          await Model.findAll('PostgresUser').where('id').gt(1).and('id').lt(3).run();
+      List users = [];
+      await results.forEach((user) {
+        users.add(user.firstName);
+      });
+
+      expect(users, equals(['Bill']));
+    });
 
     test('Model.get(`User`).id(f) returns the correct user', () async {
       PostgresUser user = await Model.get('PostgresUser').id(2).run();
@@ -280,19 +255,19 @@ main() {
       expect([user.firstName,user.lastName],equals(['Jane','Doe']));
     });
 
-    // test('Model.update([user]) can modify multiple entities', () async {
-    //   PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
-    //   PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
-    //
-    //   u1.firstName = 'Sam';
-    //   u2.firstName = 'Clint';
-    //   var id = await Model.updateAll([u1,u2]).run();
-    //   u1 = await Model.get('PostgresUser').id(2).run();
-    //   u2 = await Model.get('PostgresUser').id(3).run();
-    //
-    //   expect(id, equals(2));
-    //   expect([u1.firstName,u2.firstName],equals(['Sam','Clint']));
-    // });
+    test('Model.update([user]) can modify multiple entities', () async {
+      PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
+      PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
+
+      u1.firstName = 'Sam';
+      u2.firstName = 'Clint';
+      var id = await Model.updateFrom([u1,u2]).run();
+      u1 = await Model.get('PostgresUser').id(2).run();
+      u2 = await Model.get('PostgresUser').id(3).run();
+
+      expect(id, equals(2));
+      expect([u1.firstName,u2.firstName],equals(['Sam','Clint']));
+    });
 
     test('Model.remove(user) removes the given entity', () async {
       PostgresUser user = new PostgresUser()..id = 1;
@@ -302,14 +277,14 @@ main() {
       expect(user, equals(null));
     });
 
-    // test('Model.removeAll([users]) removes the given entities', () async {
-    //   List users = []..add(new PostgresUser()..id = 2)..add(new PostgresUser()..id = 3);
-    //   var id = await Model.removeAll(users).run();
-    //   PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
-    //   PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
-    //   expect(id, equals(2));
-    //   expect(u1, equals(null));
-    //   expect(u2, equals(null));
-    // });
+    test('Model.removeFrom([users]) removes the given entities', () async {
+      List users = []..add(new PostgresUser()..id = 2)..add(new PostgresUser()..id = 3);
+      var id = await Model.removeFrom(users).run();
+      PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
+      PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
+      expect(id, equals(2));
+      expect(u1, equals(null));
+      expect(u2, equals(null));
+    });
   });
 }

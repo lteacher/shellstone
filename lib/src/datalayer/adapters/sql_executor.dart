@@ -67,13 +67,13 @@ abstract class SqlExecutor {
       case 'findAll':
         return 'select * from ${chain.resource}';
       case 'insert':
-      case 'insertAll':
+      case 'insertFrom':
         return 'insert into ${chain.resource}';
       case 'update':
-      case 'updateAll':
+      case 'updateFrom':
         return 'update ${chain.resource} set';
       case 'remove':
-      case 'removeAll':
+      case 'removeFrom':
         return 'delete from ${chain.resource}';
     }
   }
@@ -137,18 +137,13 @@ abstract class SqlExecutor {
       // Capture the key value
       var keyValue = map[key];
 
-      if (values is List) {
-        // ditch the key
-        _stripPrimaryKey(map);
+      // ditch the key
+      _stripPrimaryKey(map);
 
-        // Add the values as a straight list of values
-        var list = map.values.toList();
-        list.add(keyValue); // Add the keyvalue back in as an append
-        values.add(list);
-      } else if (values is Map) {
-        // Add the entire map as is
-        values.addAll(map);
-      }
+      // Add the values as a straight list of values
+      var list = map.values.toList();
+      list.add(keyValue); // Add the keyvalue back in as an append
+      values.add(list);
     });
 
     var buffer = fields.fold(new StringBuffer(), (StringBuffer prev, field) {
@@ -174,13 +169,8 @@ abstract class SqlExecutor {
       // Strip the id out?
       _stripPrimaryKey(map);
 
-      if (values is List) {
-        // Add the values as a straight list of values
-        values.add(map.values.toList());
-      } else if (values is Map) {
-        // Add the entire map as is
-        values = new Map.from(map);
-      }
+      // Add the values as a straight list of values
+      values.add(map.values.toList());
     });
 
     // Get the fields out, skip the primary key TODO: only for auto incr?
@@ -195,12 +185,10 @@ abstract class SqlExecutor {
   // Maps an identifier
   mapIdentifierCmd(token) {
     if (!isModify) {
-      if (values is List) values.add(token.args.first);
-      if (values is Map) values[key] = token.args.first;
+      values.add(token.args.first);
     } else {
       token.args.forEach((entity) {
-        if (values is List) values.add([EntityBuilder.getValue(entity, key)]);
-        if (values is Map) values[key] = EntityBuilder.getValue(entity, key);
+        values.add([EntityBuilder.getValue(entity, key)]);
       });
     }
 
@@ -220,8 +208,7 @@ abstract class SqlExecutor {
     var fields = token.args.map(_getColumnName);
 
     // Add values
-    if (values is List) values.addAll(next.args);
-    if (values is Map) values.addAll(new Map.fromIterables(fields, next.args));
+    values.addAll(next.args);
 
     // Tokens need to be joined together
     var buffer = fields.fold(new StringBuffer(), (StringBuffer prev, field) {
@@ -251,13 +238,13 @@ abstract class SqlExecutor {
   get fieldNames => def.fieldNames.map(_getColumnName);
   get key => schema.primaryKey.name;
   get isMulti => chain.action == 'findAll';
-  get isInsert => chain.action == 'insert' || chain.action == 'insertAll';
+  get isInsert => chain.action == 'insert' || chain.action == 'insertFrom';
   get isModify =>
       isInsert ||
       chain.action == 'update' ||
-      chain.action == 'updateAll' ||
+      chain.action == 'updateFrom' ||
       chain.action == 'remove' ||
-      chain.action == 'removeAll';
+      chain.action == 'removeFrom';
 
   // Gets a column name else returns the given
   _getColumnName(name) {

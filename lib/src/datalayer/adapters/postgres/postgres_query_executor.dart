@@ -1,34 +1,41 @@
 import 'dart:async';
 import 'package:postgresql/postgresql.dart' as psql;
 import '../sql_executor.dart';
-import '../../../metadata/metadata.dart';
 import '../../../entities/entity_builder.dart';
 
 /// Implementation of the postgres query executor
 class PostgresQueryExecutor extends SqlExecutor {
   dynamic conn;
+  int _tokenCount = 0;
 
   PostgresQueryExecutor(adapter, chain) : super(adapter, chain) {
     // Setup the values and entities sets
-    values = new Map();
+    // values = new Map();
+    values = new List();
     entities = new List();
   }
 
   // Return the placeholder that postgres lib uses
-  getPlaceholder(field) => '@$field';
+  getPlaceholder(field) => '@${_tokenCount++}';
 
   // Execute some sql
   executeSql(sql) async {
     conn = await psql.connect(adapter.uri);
 
-    var result = isModify && !isInsert
-        ? await conn.execute(sql, values)
-        : await conn.query(sql, values);
+    var result;
+
+    if (!isModify) {
+      result = await conn.query(sql, values);
+    } else {
+      result = isInsert
+          ? await conn.queryMulti(sql, values)
+          : await conn.executeMulti(sql, values);
+    }
 
     if (isInsert) {
       var res = [];
       var list = await result.toList();
-      for (int i=0; i< list.length; i++) {
+      for (int i = 0; i < list.length; i++) {
         var id = EntityBuilder.getValue(list[i], key);
         EntityBuilder.setValue(entities[i], key, id);
         res.add(id);
@@ -66,7 +73,7 @@ class PostgresQueryExecutor extends SqlExecutor {
 
     // Use this to attach the connection close
     var ctrl = new StreamController();
-    var done =  ctrl.addStream(results);
+    var done = ctrl.addStream(results);
 
     // When done close the controller and the connection
     done.then((_) {
