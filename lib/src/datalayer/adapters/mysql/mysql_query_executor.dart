@@ -1,6 +1,5 @@
 import 'dart:async';
 import '../sql_executor.dart';
-import '../../../metadata/metadata.dart';
 import '../../../entities/entity_builder.dart';
 
 /// A class to encapsulate the query execution logic
@@ -19,37 +18,47 @@ class MysqlQueryExecutor extends SqlExecutor {
 
   // Executes a query
   Future executeSql(String sql) async {
-    var q = await adapter.pool.prepare(sql);
+    var query = await adapter.pool.prepare(sql);
 
-    // If modify unfortunately a List<Results> is returned... so a List<Stream>
-    // which literally just has an id per stream so I cant accept that. Need to
-    // squash them into a single list of ids. Frankly the ids should be
-    // injected back into the entities
-    if (isModify) {
-      var results = [];
-      List res = await q.executeMulti(values);
+    var results;
 
-      if (isInsert) {
-        for (int i = 0; i < res.length; i++) {
-          var id = res[i].insertId;
+    if (isInsert)
+      results = _execInsert(query);
+    else if (isModify)
+      results = _execModify(query);
+    else
+      results = await query.execute(values);
 
-          // Add the result back in
-          results.add(id);
-          EntityBuilder.setValue(entities[i], key, id);
-        }
-      } else {
-        // Return the sum of the affected rows
-        return res.fold(0, (prev, curr) => curr.affectedRows + prev);
-      }
+    await query.close();
 
-      await q.close();
-      return new Future.value(results);
-    } else {
-      var results = await q.execute(values);
+    return results;
+  }
 
-      await q.close();
-      return results;
+  // Called for all non insertions
+  _execModify(query) async {
+    List result = isFromEntity
+        ? await query.executeMulti(values)
+        : await query.executeMulti([values]);
+
+    return result.fold(0, (prev, curr) => curr.affectedRows + prev);
+  }
+
+  // Specific insert function
+  _execInsert(query) async {
+    var results = [];
+    List res = await query.executeMulti(values);
+
+    for (int i = 0; i < res.length; i++) {
+      var id = res[i].insertId;
+
+      // Set the id on the input entities if that is required
+      if (isFromEntity) EntityBuilder.setValue(entities[i], key, id);
+
+      // Add the result back in
+      results.add(id);
     }
+
+    return results;
   }
 
   // Executes a query that will return a single Future
@@ -66,7 +75,7 @@ class MysqlQueryExecutor extends SqlExecutor {
       // just not possible to know if it is empty to take the `first`
       List rows = await results
           .map((row) => new Map.fromIterables(fields, row))
-          .map((row) => Metadata.unwrap(chain.entity, row))
+          .map((row) => EntityBuilder.unwrap(chain.entity, row))
           .where((user) => filter != null ? filter(user) : true)
           .toList();
 
@@ -82,7 +91,7 @@ class MysqlQueryExecutor extends SqlExecutor {
 
     yield* results
         .map((row) => new Map.fromIterables(fields, row))
-        .map((row) => Metadata.unwrap(chain.entity, row))
+        .map((row) => EntityBuilder.unwrap(chain.entity, row))
         .where((user) => filter != null ? filter(user) : true);
   }
 }

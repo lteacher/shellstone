@@ -22,7 +22,7 @@ main() {
   });
 }
 
-@Model('order')
+@Model(name: 'order')
 class Order extends BaseModel {
   @Attr() String description;
 }

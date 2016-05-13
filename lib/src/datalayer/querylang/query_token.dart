@@ -14,7 +14,7 @@ import 'query_runner.dart';
 abstract class QueryToken {
   QueryChain _chain;
   String operator;
-  List args;
+  Iterable args;
 
   /// Takes a single [QueryChain] as an argument
   QueryToken(this._chain);
@@ -24,7 +24,7 @@ abstract class QueryToken {
     this._chain.add(this);
     this.operator = op;
 
-    if (val is List)
+    if (val is Iterable)
       this.args = val;
     else
       this.args = []..add(val);

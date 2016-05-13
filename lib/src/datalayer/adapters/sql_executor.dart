@@ -4,7 +4,6 @@ import '../querylang.dart';
 import '../schema/schema.dart';
 import '../../entities/entity_builder.dart';
 import '../../entities/entity_definition.dart';
-import '../../metadata/metadata.dart';
 
 /// Provides some helper functionality that might be useful for sql adapters
 abstract class SqlExecutor {
@@ -68,13 +67,13 @@ abstract class SqlExecutor {
       case 'findAll':
         return 'select * from ${chain.resource}';
       case 'insert':
-      case 'insertAll':
+      case 'insertFrom':
         return 'insert into ${chain.resource}';
       case 'update':
-      case 'updateAll':
+      case 'updateFrom':
         return 'update ${chain.resource} set';
       case 'remove':
-      case 'removeAll':
+      case 'removeFrom':
         return 'delete from ${chain.resource}';
     }
   }
@@ -107,7 +106,7 @@ abstract class SqlExecutor {
         j++;
       } else if (token is Modifier) {
         commands.add(mapModifierCmd(token));
-      } else if (token is Identifier || token is Removal) {
+      } else if (token is Identifier || (token is Removal && isFromEntity)) {
         commands.add(mapIdentifierCmd(token));
       } else if (token is Insertion) {
         commands.addAll(mapInsertCmd(token));
@@ -134,11 +133,13 @@ abstract class SqlExecutor {
     entities = token.args;
     var fields = fieldNames.where((f) => f != key);
 
-    token.args.map(Metadata.wrap).forEach((Map map) {
-      // Capture the key value
-      var keyValue = map[key];
+    if (reqWrapping) token.args = token.args.map(EntityBuilder.wrap);
 
-      if (values is List) {
+    token.args.forEach((Map map) {
+      if (isFromEntity) {
+        // Capture the key value
+        var keyValue = map[key];
+
         // ditch the key
         _stripPrimaryKey(map);
 
@@ -146,9 +147,9 @@ abstract class SqlExecutor {
         var list = map.values.toList();
         list.add(keyValue); // Add the keyvalue back in as an append
         values.add(list);
-      } else if (values is Map) {
-        // Add the entire map as is
-        values.addAll(map);
+      } else {
+        var list = map.values.toList();
+        values.addAll(list);
       }
     });
 
@@ -159,29 +160,26 @@ abstract class SqlExecutor {
       return prev;
     });
 
-    // Add a where clause in for the id TODO: Remove when insert / insertFrom
-    buffer.write(' where $key = ${getPlaceholder(key)}');
+    // Set the where clause to the key if from entity
+    if (isFromEntity) buffer.write(' where $key = ${getPlaceholder(key)}');
 
     return buffer.toString();
   }
 
   // Maps the insert command
   List mapInsertCmd(token) {
+    entities = token.args;
     var fields = fieldNames.where((f) => f != key);
     var result = []..add('(${fields.join(',')})');
-    entities = token.args;
 
-    token.args.map(Metadata.wrap).forEach((Map map) {
+    if (reqWrapping) token.args = token.args.map(EntityBuilder.wrap);
+
+    token.args.forEach((Map map) {
       // Strip the id out?
       _stripPrimaryKey(map);
 
-      if (values is List) {
-        // Add the values as a straight list of values
-        values.add(map.values.toList());
-      } else if (values is Map) {
-        // Add the entire map as is
-        values = new Map.from(map);
-      }
+      // Add the values as a straight list of values
+      values.add(map.values.toList());
     });
 
     // Get the fields out, skip the primary key TODO: only for auto incr?
@@ -196,12 +194,10 @@ abstract class SqlExecutor {
   // Maps an identifier
   mapIdentifierCmd(token) {
     if (!isModify) {
-      if (values is List) values.add(token.args.first);
-      if (values is Map) values[key] = token.args.first;
+      values.add(token.args.first);
     } else {
       token.args.forEach((entity) {
-        if (values is List) values.add([EntityBuilder.getValue(entity, key)]);
-        if (values is Map) values[key] = EntityBuilder.getValue(entity, key);
+        values.add([EntityBuilder.getValue(entity, key)]);
       });
     }
 
@@ -220,9 +216,11 @@ abstract class SqlExecutor {
     var op = getOperator(next.operator);
     var fields = token.args.map(_getColumnName);
 
-    // Add values
-    if (values is List) values.addAll(next.args);
-    if (values is Map) values.addAll(new Map.fromIterables(fields, next.args));
+    // Add values, if from entity add direct else if not add to each list
+    // if (isFromEntity || values.isEmpty)
+    values.addAll(next.args);
+    // else
+    //   values.forEach((list) => list.addAll(next.args));
 
     // Tokens need to be joined together
     var buffer = fields.fold(new StringBuffer(), (StringBuffer prev, field) {
@@ -249,20 +247,32 @@ abstract class SqlExecutor {
     if (result == null) map.remove(field.column);
   }
 
-  get fieldNames => def.fieldNames.map(_getColumnName);
+  // Returns the field names from either the entities or from the definition
+  get fieldNames {
+    return isFromEntity
+        ? def.fieldNames.map(_getColumnName)
+        : entities[0].keys.map(_getColumnName);
+  }
+
+  get isFromEntity => reqWrapping;
   get key => schema.primaryKey.name;
   get isMulti => chain.action == 'findAll';
-  get isInsert => chain.action == 'insert' || chain.action == 'insertAll';
-  get isModify =>
-      isInsert ||
-      chain.action == 'update' ||
-      chain.action == 'updateAll' ||
-      chain.action == 'remove' ||
-      chain.action == 'removeAll';
+  get isUpdate => chain.action == 'update' || chain.action == 'updateFrom';
+  get isRemove => chain.action == 'remove' || chain.action == 'removeFrom';
+  get isInsert => chain.action == 'insert' || chain.action == 'insertFrom';
+  get isModify => isInsert || isUpdate || isRemove;
 
   // Gets a column name else returns the given
   _getColumnName(name) {
     var field = schema.getField(name);
     return field != null ? field.column : name;
   }
+
+  // Converts the provided fields to columns to help out
+  _mutateColumns(map) {}
+
+  // Determines if this action needs advanced wrapping
+  get reqWrapping => (chain.action != 'insert' &&
+      chain.action != 'update' &&
+      chain.action != 'remove');
 }

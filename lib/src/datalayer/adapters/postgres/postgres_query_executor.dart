@@ -1,43 +1,54 @@
 import 'dart:async';
 import 'package:postgresql/postgresql.dart' as psql;
 import '../sql_executor.dart';
-import '../../../metadata/metadata.dart';
 import '../../../entities/entity_builder.dart';
 
 /// Implementation of the postgres query executor
 class PostgresQueryExecutor extends SqlExecutor {
   dynamic conn;
+  int _tokenCount = 0;
 
   PostgresQueryExecutor(adapter, chain) : super(adapter, chain) {
     // Setup the values and entities sets
-    values = new Map();
+    values = new List();
     entities = new List();
   }
 
   // Return the placeholder that postgres lib uses
-  getPlaceholder(field) => '@$field';
+  getPlaceholder(field) => '@${_tokenCount++}';
 
   // Execute some sql
   executeSql(sql) async {
     conn = await psql.connect(adapter.uri);
 
-    var result = isModify && !isInsert
-        ? await conn.execute(sql, values)
-        : await conn.query(sql, values);
+    if (isInsert) return _execInsert(sql);
+    else if (isModify) return _execModify(sql);
+    else return await conn.query(sql, values);
+  }
 
-    if (isInsert) {
-      var res = [];
-      var list = await result.toList();
-      for (int i=0; i< list.length; i++) {
-        var id = EntityBuilder.getValue(list[i], key);
-        EntityBuilder.setValue(entities[i], key, id);
-        res.add(id);
-      }
+  // Execute a modify query
+  _execModify(sql) async {
+    return isFromEntity
+        ? await conn.executeMulti(sql, values)
+        : await conn.execute(sql, values);
+  }
 
-      return new Future.value(res);
-    } else {
-      return result;
+  // Execute insertion
+  _execInsert(sql) async {
+    var result = await conn.queryMulti(sql, values);
+
+    var res = [];
+    var list = await result.toList();
+    for (int i = 0; i < list.length; i++) {
+      var id = EntityBuilder.getValue(list[i], key);
+
+      // Set the id on the input entities if that is required
+      if (isFromEntity) EntityBuilder.setValue(entities[i], key, id);
+
+      res.add(id);
     }
+
+    return new Future.value(res);
   }
 
   // Executes a query that will return a single Future
@@ -50,7 +61,7 @@ class PostgresQueryExecutor extends SqlExecutor {
       return results;
     } else {
       List rows = await results
-          .map((row) => Metadata.unwrap(chain.entity, row.toMap()))
+          .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
           .where((user) => filter != null ? filter(user) : true)
           .toList();
 
@@ -66,7 +77,7 @@ class PostgresQueryExecutor extends SqlExecutor {
 
     // Use this to attach the connection close
     var ctrl = new StreamController();
-    var done =  ctrl.addStream(results);
+    var done = ctrl.addStream(results);
 
     // When done close the controller and the connection
     done.then((_) {
@@ -75,7 +86,7 @@ class PostgresQueryExecutor extends SqlExecutor {
     });
 
     yield* ctrl.stream
-        .map((row) => Metadata.unwrap(chain.entity, row.toMap()))
+        .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
         .where((user) => filter != null ? filter(user) : true);
   }
 
@@ -84,14 +95,4 @@ class PostgresQueryExecutor extends SqlExecutor {
     result.add('returning $key'); // Add the primary key mapping
     return result;
   }
-
-  // get actionCmd {
-  //   switch (chain.action) {
-  //     case 'update':
-  //     case 'updateAll':
-  //       return 'update ${chain.resource} set';
-  //     default:
-  //       return super.actionCmd;
-  //   }
-  // }
 }
