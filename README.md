@@ -56,9 +56,9 @@ The following attributes are possible for the `@Model` annotation
 #### Attributes
 
 Defined with the `@Attr` annotation shown above, currently a field must be annotated for it to be included in a model. A later feature will change this. The possible values are
+
 - `primaryKey` - _Indicates that the field is the primary key. Currently this is **required** for at least one field_
-- `type` - _The type of the field in the database. By default this is inferred from the dart type declared. Current possible types are_
-    - `string`,`integer`,`float`,`datetime`* _(Coming soon...)_
+- `type` - _The type of the field in the database. By default this is inferred from the dart type declared. Current possible types are: `string`,`integer`,`float`,`datetime`* _(Coming soon...)_
 - `column` - _The name of the field. By default the declaration is used but this can be use to override. The Postgres adapter, for example, sneakily changes these to lower case_
 
 There are more fields but they are not yet implemented so they will be added to the doc once complete.
@@ -150,6 +150,7 @@ Take a look at the tests for even more examples
 ## Roadmap
 
 Check the issues for a clearer set of upcoming features. However know that the following are features that are in the immediate future
+
 - Relations between models
 - Auto build of tables / db
 - Richer query set including modifiers
