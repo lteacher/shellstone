@@ -48,6 +48,7 @@ class Person {
 ```
 
 The following attributes are possible for the `@Model` annotation
+
 - `name` - _The name of the underlying table. Defaults to the name of the annotated class_
 - `source` - _The source database, e.g. `postgres`. Defaults to `mysql`_
 - `migration` - _The migration strategy to use for table / db construction during `build`. Defaults to `safe`_
@@ -132,6 +133,7 @@ main() async {
 ```
 
 The following actions are available:
+
 - `find` - _Find the first entity matching some condition or filter_
 - `findAll` - _Find all the entities matching some condition or filter_
 - `insert` - _Insert some values into a defined model as a map of name / values or a list of maps_
