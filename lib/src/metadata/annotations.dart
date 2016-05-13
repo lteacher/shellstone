@@ -37,7 +37,7 @@ class Model {
   static MultipleResultQuery findAll(name) => new QueryAction(_convert(name)).findAll();
 
   /// The [insert] method is used to insert a given set of values
-  static SingleResultRunnable insert(name, Map values) =>
+  static SingleResultRunnable insert(name, values) =>
       new QueryAction(_convert(name)).insert(values);
 
   /// The [insertFrom] method inserts from an entity or collection of entities
@@ -45,7 +45,7 @@ class Model {
       new QueryAction(Metadata.name(entities)).insertFrom(entities);
 
   /// The [update] method is used to update an entity where matches
-  static SingleResultQuery update(name,Map values) =>
+  static SingleResultQuery update(name,values) =>
       new QueryAction(_convert(name)).update(values);
 
   /// The [updateFrom] method updates from the given entity or entities

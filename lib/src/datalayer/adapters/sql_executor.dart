@@ -106,7 +106,7 @@ abstract class SqlExecutor {
         j++;
       } else if (token is Modifier) {
         commands.add(mapModifierCmd(token));
-      } else if (token is Identifier || token is Removal) {
+      } else if (token is Identifier || (token is Removal && isFromEntity)) {
         commands.add(mapIdentifierCmd(token));
       } else if (token is Insertion) {
         commands.addAll(mapInsertCmd(token));
@@ -133,17 +133,24 @@ abstract class SqlExecutor {
     entities = token.args;
     var fields = fieldNames.where((f) => f != key);
 
-    token.args.map(EntityBuilder.wrap).forEach((Map map) {
-      // Capture the key value
-      var keyValue = map[key];
+    if (reqWrapping) token.args = token.args.map(EntityBuilder.wrap);
 
-      // ditch the key
-      _stripPrimaryKey(map);
+    token.args.forEach((Map map) {
+      if (isFromEntity) {
+        // Capture the key value
+        var keyValue = map[key];
 
-      // Add the values as a straight list of values
-      var list = map.values.toList();
-      list.add(keyValue); // Add the keyvalue back in as an append
-      values.add(list);
+        // ditch the key
+        _stripPrimaryKey(map);
+
+        // Add the values as a straight list of values
+        var list = map.values.toList();
+        list.add(keyValue); // Add the keyvalue back in as an append
+        values.add(list);
+      } else {
+        var list = map.values.toList();
+        values.addAll(list);
+      }
     });
 
     var buffer = fields.fold(new StringBuffer(), (StringBuffer prev, field) {
@@ -153,19 +160,21 @@ abstract class SqlExecutor {
       return prev;
     });
 
-    // Add a where clause in for the id TODO: Remove when insert / insertFrom
-    buffer.write(' where $key = ${getPlaceholder(key)}');
+    // Set the where clause to the key if from entity
+    if (isFromEntity) buffer.write(' where $key = ${getPlaceholder(key)}');
 
     return buffer.toString();
   }
 
   // Maps the insert command
   List mapInsertCmd(token) {
+    entities = token.args;
     var fields = fieldNames.where((f) => f != key);
     var result = []..add('(${fields.join(',')})');
-    entities = token.args;
 
-    token.args.map(EntityBuilder.wrap).forEach((Map map) {
+    if (reqWrapping) token.args = token.args.map(EntityBuilder.wrap);
+
+    token.args.forEach((Map map) {
       // Strip the id out?
       _stripPrimaryKey(map);
 
@@ -207,8 +216,11 @@ abstract class SqlExecutor {
     var op = getOperator(next.operator);
     var fields = token.args.map(_getColumnName);
 
-    // Add values
+    // Add values, if from entity add direct else if not add to each list
+    // if (isFromEntity || values.isEmpty)
     values.addAll(next.args);
+    // else
+    //   values.forEach((list) => list.addAll(next.args));
 
     // Tokens need to be joined together
     var buffer = fields.fold(new StringBuffer(), (StringBuffer prev, field) {
@@ -235,20 +247,32 @@ abstract class SqlExecutor {
     if (result == null) map.remove(field.column);
   }
 
-  get fieldNames => def.fieldNames.map(_getColumnName);
+  // Returns the field names from either the entities or from the definition
+  get fieldNames {
+    return isFromEntity
+        ? def.fieldNames.map(_getColumnName)
+        : entities[0].keys.map(_getColumnName);
+  }
+
+  get isFromEntity => reqWrapping;
   get key => schema.primaryKey.name;
   get isMulti => chain.action == 'findAll';
+  get isUpdate => chain.action == 'update' || chain.action == 'updateFrom';
+  get isRemove => chain.action == 'remove' || chain.action == 'removeFrom';
   get isInsert => chain.action == 'insert' || chain.action == 'insertFrom';
-  get isModify =>
-      isInsert ||
-      chain.action == 'update' ||
-      chain.action == 'updateFrom' ||
-      chain.action == 'remove' ||
-      chain.action == 'removeFrom';
+  get isModify => isInsert || isUpdate || isRemove;
 
   // Gets a column name else returns the given
   _getColumnName(name) {
     var field = schema.getField(name);
     return field != null ? field.column : name;
   }
+
+  // Converts the provided fields to columns to help out
+  _mutateColumns(map) {}
+
+  // Determines if this action needs advanced wrapping
+  get reqWrapping => (chain.action != 'insert' &&
+      chain.action != 'update' &&
+      chain.action != 'remove');
 }

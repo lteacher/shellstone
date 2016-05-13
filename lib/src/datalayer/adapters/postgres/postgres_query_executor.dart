@@ -10,7 +10,6 @@ class PostgresQueryExecutor extends SqlExecutor {
 
   PostgresQueryExecutor(adapter, chain) : super(adapter, chain) {
     // Setup the values and entities sets
-    // values = new Map();
     values = new List();
     entities = new List();
   }
@@ -22,29 +21,34 @@ class PostgresQueryExecutor extends SqlExecutor {
   executeSql(sql) async {
     conn = await psql.connect(adapter.uri);
 
-    var result;
+    if (isInsert) return _execInsert(sql);
+    else if (isModify) return _execModify(sql);
+    else return await conn.query(sql, values);
+  }
 
-    if (!isModify) {
-      result = await conn.query(sql, values);
-    } else {
-      result = isInsert
-          ? await conn.queryMulti(sql, values)
-          : await conn.executeMulti(sql, values);
+  // Execute a modify query
+  _execModify(sql) async {
+    return isFromEntity
+        ? await conn.executeMulti(sql, values)
+        : await conn.execute(sql, values);
+  }
+
+  // Execute insertion
+  _execInsert(sql) async {
+    var result = await conn.queryMulti(sql, values);
+
+    var res = [];
+    var list = await result.toList();
+    for (int i = 0; i < list.length; i++) {
+      var id = EntityBuilder.getValue(list[i], key);
+
+      // Set the id on the input entities if that is required
+      if (isFromEntity) EntityBuilder.setValue(entities[i], key, id);
+
+      res.add(id);
     }
 
-    if (isInsert) {
-      var res = [];
-      var list = await result.toList();
-      for (int i = 0; i < list.length; i++) {
-        var id = EntityBuilder.getValue(list[i], key);
-        EntityBuilder.setValue(entities[i], key, id);
-        res.add(id);
-      }
-
-      return new Future.value(res);
-    } else {
-      return result;
-    }
+    return new Future.value(res);
   }
 
   // Executes a query that will return a single Future

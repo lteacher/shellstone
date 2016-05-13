@@ -13,9 +13,8 @@ class Update extends QueryToken
   run() => runChain();
 }
 
-class UpdateQuery extends Update implements SingleResultQuery {
-  UpdateQuery(chain,values) : super(chain,values, new Filter(chain));
-
-  where(fields) => init('where', fields, new Filter(chain));
-  filter(fn) => init('filter', fn, new Modifier(chain));
+class UpdateQuery extends QueryDelegator {
+  UpdateQuery(chain,values) : super(chain) {
+    new Update(chain,values); // Will add itself on creation.
+  }
 }

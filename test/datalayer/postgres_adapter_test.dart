@@ -18,7 +18,7 @@ main() {
       expect(await Model.find('PostgresUser').run(), equals(null));
     });
 
-    test('Model.insert(user) can insert a new user', () async {
+    test('Model.insertFrom(user) can insert a new user', () async {
       var user = new PostgresUser()
         ..username = 'jjon'
         ..password = '12345'
@@ -48,10 +48,47 @@ main() {
       expect(insertIds, equals([2, 3]));
     });
 
+    test('Model.insert(User,values) can insert a new user', () async {
+      var map = {
+        'username': 'kjoe',
+        'password': '909898',
+        'firstName': 'Kelly',
+        'lastName': 'Jones'
+      };
+
+      var insertIds = await Model.insert(PostgresUser,map).run();
+      expect(insertIds.first, equals(4));
+    });
+
+    test('Model.insert(User,[values]) can insert a new user', () async {
+      var arr = [{
+        'username': 'eone',
+        'password': '878232',
+        'firstName': 'Emily',
+        'lastName': 'Norma'
+      },
+      {
+        'username': 'blaerg',
+        'password': '134234',
+        'firstName': 'Belinda',
+        'lastName': 'Laerga'
+      }
+    ];
+
+      var insertIds = await Model.insert(PostgresUser,arr).run();
+      expect(insertIds, equals([5,6]));
+    });
+
     test('Model.find(`User`).where(f).eq(v) can find the correct user',
         () async {
       PostgresUser user = await Model.find('PostgresUser').where('firstName').eq('Bill').run();
       expect(user.firstName, equals('Bill'));
+    });
+
+    test('Model.find(User).where(f).eq(v) can find the correct user',
+        () async {
+      PostgresUser user = await Model.find(PostgresUser).where('firstName').eq('Emily').run();
+      expect(user.username, equals('eone'));
     });
 
     test('Model.find(`User`).where([f]).eq([v]) can find the correct user',
@@ -71,7 +108,7 @@ main() {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Jim', 'Charles']));
+      expect(users, equals(['Jim', 'Charles', 'Kelly']));
     });
 
     test('Model.findAll(`User`).where(f).ne(v) finds the correct user',
@@ -83,29 +120,29 @@ main() {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Bill']));
+      expect(users, equals(['Bill', 'Emily', 'Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).gt(v) finds the correct single user',
         () async {
-      Stream results = await Model.findAll('PostgresUser').where('id').gt(2).run();
+      Stream results = await Model.findAll('PostgresUser').where('id').gt(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Charles']));
+      expect(users, equals(['Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).ge(v) finds the correct two users',
         () async {
-      Stream results = await Model.findAll('PostgresUser').where('id').ge(2).run();
+      Stream results = await Model.findAll('PostgresUser').where('id').ge(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Bill', 'Charles']));
+      expect(users, equals(['Emily', 'Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).lt(v) finds the correct single user',
@@ -243,7 +280,7 @@ main() {
       expect(users, equals([]));
     });
 
-    test('Model.update(user) can modify an entity', () async {
+    test('Model.updateFrom(user) can modify an entity', () async {
       PostgresUser user = await Model.get('PostgresUser').id(1).run();
 
       user.firstName = 'Jane';
@@ -255,7 +292,7 @@ main() {
       expect([user.firstName,user.lastName],equals(['Jane','Doe']));
     });
 
-    test('Model.update([user]) can modify multiple entities', () async {
+    test('Model.updateFrom([user]) can modify multiple entities', () async {
       PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
       PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
 
@@ -269,7 +306,27 @@ main() {
       expect([u1.firstName,u2.firstName],equals(['Sam','Clint']));
     });
 
-    test('Model.remove(user) removes the given entity', () async {
+    test('Model.update(User,values) can modify an entity', () async {
+      await Model.update(PostgresUser,{'username':'zeal'}).where('firstName').eq('Belinda').run();
+      PostgresUser user = await Model.get('PostgresUser').id(6).run();
+
+      expect([user.username,user.firstName],equals(['zeal','Belinda']));
+    });
+
+    test('Model.update(User,values) can modify many entities', () async {
+      await Model.update(PostgresUser,{'lastName':'Smith'}).where('lastName').eq('Jones').run();
+
+      Stream results =
+          await Model.findAll('PostgresUser').filter((user) => user.lastName == 'Smith').run();
+      List users = [];
+      await results.forEach((user) {
+        users.add(user.firstName);
+      });
+
+      expect(users,equals(['Kelly','Clint']));
+    });
+
+    test('Model.removeFrom(user) removes the given entity', () async {
       PostgresUser user = new PostgresUser()..id = 1;
       var id = await Model.removeFrom(user).run();
       user = await Model.get('PostgresUser').id(1).run();
@@ -282,6 +339,21 @@ main() {
       var id = await Model.removeFrom(users).run();
       PostgresUser u1 = await Model.get('PostgresUser').id(2).run();
       PostgresUser u2 = await Model.get('PostgresUser').id(3).run();
+      expect(id, equals(2));
+      expect(u1, equals(null));
+      expect(u2, equals(null));
+    });
+
+    test('Model.remove(User).where() removes the given entities', () async {
+      var id = await Model
+          .remove(PostgresUser)
+          .where('firstName')
+          .eq('Belinda')
+          .or('firstName')
+          .eq('Kelly')
+          .run();
+      PostgresUser u1 = await Model.get('PostgresUser').id(4).run();
+      PostgresUser u2 = await Model.get('PostgresUser').id(6).run();
       expect(id, equals(2));
       expect(u1, equals(null));
       expect(u2, equals(null));

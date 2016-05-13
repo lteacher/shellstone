@@ -1,8 +1,8 @@
 name: shellstone
 version: 0.1.3
-homepage: https://github.com/lessonteacher/shellstone
+homepage: https://github.com/lteacher/shellstone
 authors:
-- Hugo Armstrong <@lessonteacher>
+- Hugo Armstrong <@lteacher>
 description:
   Inspired by Shelf, Redstone and js frameworks like Sails, Shellstone is a server
   side framework to provide a form of ORM, routing and other various features
@@ -16,7 +16,7 @@ dependencies:
   quiver: '>=0.22.0 <0.23.0'
   postgresql:
     git:
-      url: git@github.com:lteacher/dart_postgresql.git
+      url: https://github.com/lteacher/dart_postgresql.git
       ref: feature/#75-multi
 dev_dependencies:
   test: '^0.12.0'

@@ -4,7 +4,7 @@
 > server side framework to provide a form of ORM, routing and other various
 > features
 
-[![Build Status](https://api.travis-ci.org/lessonteacher/shellstone.svg?branch=master)](https://travis-ci.org/lessonteacher/shellstone)
+[![Build Status](https://api.travis-ci.org/lteacher/shellstone.svg?branch=master)](https://travis-ci.org/lteacher/shellstone)
 [![Join the chat at https://gitter.im/lessonteacher/shellstone](https://badges.gitter.im/lessonteacher/shellstone.svg)](https://gitter.im/lessonteacher/shellstone?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 _**Note**: This is a currently a WIP. You could technically use the current version if all your models are so simple and dont have any relations but otherwise I would suggest holding out for a later release. I have published this basic version in case anyone thinks the idea is good and wants to contribute._

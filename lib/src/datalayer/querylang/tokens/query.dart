@@ -30,3 +30,15 @@ class Query extends QueryToken
   /// Concrete run
   run() => runChain();
 }
+
+// A query which delegates its functions
+abstract class QueryDelegator implements SingleResultQuery {
+  Query query;
+  QueryDelegator(chain) {
+    query = new Query(chain);
+  }
+
+  where(fields) => query.where(fields);
+  filter(fn) => query.filter(fn);
+  run() => query.run();
+}

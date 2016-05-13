@@ -15,10 +15,10 @@ main() {
 
   group('Mysql Adapter', () {
     test('Model.find(name) can be executed but returns nothing', () async {
-      expect(await Model.find('User').run(), equals(null));
+      expect(await Model.find('MysqlUser').run(), equals(null));
     });
 
-    test('Model.insert(user) can insert a new user', () async {
+    test('Model.insertFrom(user) can insert a new user', () async {
       var user = new MysqlUser()
         ..username = 'jjon'
         ..password = '12345'
@@ -30,7 +30,7 @@ main() {
       expect(user.id, equals(1));
     });
 
-    test('Model.insert([users]) can insert multiple users', () async {
+    test('Model.insertFrom([users]) can insert multiple users', () async {
       var user1 = new MysqlUser()
         ..username = 'bbill'
         ..password = '54321'
@@ -48,16 +48,53 @@ main() {
       expect(insertIds, equals([2, 3]));
     });
 
+    test('Model.insert(User,values) can insert a new user', () async {
+      var map = {
+        'username': 'kjoe',
+        'password': '909898',
+        'firstName': 'Kelly',
+        'lastName': 'Jones'
+      };
+
+      var insertIds = await Model.insert(MysqlUser,map).run();
+      expect(insertIds.first, equals(4));
+    });
+
+    test('Model.insert(User,[values]) can insert a new user', () async {
+      var arr = [{
+        'username': 'eone',
+        'password': '878232',
+        'firstName': 'Emily',
+        'lastName': 'Norma'
+      },
+      {
+        'username': 'blaerg',
+        'password': '134234',
+        'firstName': 'Belinda',
+        'lastName': 'Laerga'
+      }
+    ];
+
+      var insertIds = await Model.insert(MysqlUser,arr).run();
+      expect(insertIds, equals([5,6]));
+    });
+
     test('Model.find(`User`).where(f).eq(v) can find the correct user',
         () async {
-      MysqlUser user = await Model.find('User').where('firstName').eq('Bill').run();
+      MysqlUser user = await Model.find('MysqlUser').where('firstName').eq('Bill').run();
       expect(user.firstName, equals('Bill'));
+    });
+
+    test('Model.find(User).where(f).eq(v) can find the correct user',
+        () async {
+      MysqlUser user = await Model.find(MysqlUser).where('firstName').eq('Emily').run();
+      expect(user.username, equals('eone'));
     });
 
     test('Model.find(`User`).where([f]).eq([v]) can find the correct user',
         () async {
       MysqlUser user = await Model
-          .find('User')
+          .find('MysqlUser')
           .where(['lastName', 'username']).eq(['Jones', 'cchill']).run();
       expect(user.firstName, equals('Charles'));
     });
@@ -65,52 +102,52 @@ main() {
     test('Model.findAll(`User`).where(f).eq(v) finds the correct two users',
         () async {
       Stream results =
-          await Model.findAll('User').where('lastName').eq('Jones').run();
+          await Model.findAll('MysqlUser').where('lastName').eq('Jones').run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Jim', 'Charles']));
+      expect(users, equals(['Jim', 'Charles', 'Kelly']));
     });
 
     test('Model.findAll(`User`).where(f).ne(v) finds the correct user',
         () async {
       Stream results =
-          await Model.findAll('User').where('lastName').ne('Jones').run();
+          await Model.findAll('MysqlUser').where('lastName').ne('Jones').run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Bill']));
+      expect(users, equals(['Bill', 'Emily', 'Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).gt(v) finds the correct single user',
         () async {
-      Stream results = await Model.findAll('User').where('id').gt(2).run();
+      Stream results = await Model.findAll('MysqlUser').where('id').gt(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Charles']));
+      expect(users, equals(['Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).ge(v) finds the correct two users',
         () async {
-      Stream results = await Model.findAll('User').where('id').ge(2).run();
+      Stream results = await Model.findAll('MysqlUser').where('id').ge(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
       });
 
-      expect(users, equals(['Bill', 'Charles']));
+      expect(users, equals(['Emily', 'Belinda']));
     });
 
     test('Model.findAll(`User`).where(f).lt(v) finds the correct single user',
         () async {
-      Stream results = await Model.findAll('User').where('id').lt(2).run();
+      Stream results = await Model.findAll('MysqlUser').where('id').lt(2).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -121,7 +158,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).le(v) finds the correct two users',
         () async {
-      Stream results = await Model.findAll('User').where('id').le(2).run();
+      Stream results = await Model.findAll('MysqlUser').where('id').le(2).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -134,7 +171,7 @@ main() {
         'Model.findAll(`User`).where(f).eq(v).or(f).eq(v) finds the correct two users',
         () async {
       Stream results = await Model
-          .findAll('User')
+          .findAll('MysqlUser')
           .where('id')
           .eq(1)
           .or('firstName')
@@ -152,7 +189,7 @@ main() {
         'Model.findAll(`User`).where(f).eq(v).and(f).eq(v) finds the correct users',
         () async {
       Stream results = await Model
-          .findAll('User')
+          .findAll('MysqlUser')
           .where('lastName')
           .eq('Jones')
           .and('firstName')
@@ -170,7 +207,7 @@ main() {
         'Model.findAll(`User`).where(f).complex A... finds the correct two users',
         () async {
       Stream results = await Model
-          .findAll('User')
+          .findAll('MysqlUser')
           .where('lastName')
           .eq('Jones')
           .and('id')
@@ -190,7 +227,7 @@ main() {
         'Model.findAll(`User`).where(f).complex B... finds the correct two users',
         () async {
       Stream results =
-          await Model.findAll('User').where('id').gt(1).and('id').lt(3).run();
+          await Model.findAll('MysqlUser').where('id').gt(1).and('id').lt(3).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -200,14 +237,14 @@ main() {
     });
 
     test('Model.get(`User`).id(f) returns the correct user', () async {
-      MysqlUser user = await Model.get('User').id(2).run();
+      MysqlUser user = await Model.get('MysqlUser').id(2).run();
 
       expect(user.firstName, equals('Bill'));
     });
 
     test('Model.find(`User`).filter(user) returns the correct user', () async {
       MysqlUser user = await Model
-          .find('User')
+          .find('MysqlUser')
           .filter((user) => user.firstName == 'Bill')
           .run();
       expect(user.firstName, equals('Bill'));
@@ -216,7 +253,7 @@ main() {
     test('Model.findAll(`User`).filter(user) returns the correct users',
         () async {
       Stream results = await Model
-          .findAll('User')
+          .findAll('MysqlUser')
           .filter(
               (user) => user.firstName == 'Jim' || user.firstName == 'Charles')
           .run();
@@ -229,13 +266,13 @@ main() {
 
     test('Model.find(`User`).filter(user) returns null', () async {
       MysqlUser user =
-          await Model.find('User').filter((user) => true == false).run();
+          await Model.find('MysqlUser').filter((user) => true == false).run();
       expect(user, equals(null));
     });
 
     test('Model.findAll(`User`).filter(user) returns the empty set', () async {
       Stream results =
-          await Model.findAll('User').filter((user) => true == false).run();
+          await Model.findAll('MysqlUser').filter((user) => true == false).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -243,45 +280,80 @@ main() {
       expect(users, equals([]));
     });
 
-    test('Model.update(user) can modify an entity', () async {
-      MysqlUser user = await Model.get('User').id(1).run();
+    test('Model.updateFrom(user) can modify an entity', () async {
+      MysqlUser user = await Model.get('MysqlUser').id(1).run();
 
       user.firstName = 'Jane';
       user.lastName = 'Doe';
       var id = await Model.updateFrom(user).run();
-      user = await Model.get('User').id(1).run();
+      user = await Model.get('MysqlUser').id(1).run();
 
       expect(id, equals(1));
       expect([user.firstName,user.lastName],equals(['Jane','Doe']));
     });
 
-    test('Model.update([user]) can modify multiple entities', () async {
-      MysqlUser u1 = await Model.get('User').id(2).run();
-      MysqlUser u2 = await Model.get('User').id(3).run();
+    test('Model.updateFrom([user]) can modify multiple entities', () async {
+      MysqlUser u1 = await Model.get('MysqlUser').id(2).run();
+      MysqlUser u2 = await Model.get('MysqlUser').id(3).run();
 
       u1.firstName = 'Sam';
       u2.firstName = 'Clint';
       var id = await Model.updateFrom([u1,u2]).run();
-      u1 = await Model.get('User').id(2).run();
-      u2 = await Model.get('User').id(3).run();
+      u1 = await Model.get('MysqlUser').id(2).run();
+      u2 = await Model.get('MysqlUser').id(3).run();
 
       expect(id, equals(2));
       expect([u1.firstName,u2.firstName],equals(['Sam','Clint']));
     });
 
-    test('Model.remove(user) removes the given entity', () async {
+    test('Model.update(User,values) can modify an entity', () async {
+      await Model.update(MysqlUser,{'username':'zeal'}).where('firstName').eq('Belinda').run();
+      MysqlUser user = await Model.get('MysqlUser').id(6).run();
+
+      expect([user.username,user.firstName],equals(['zeal','Belinda']));
+    });
+
+    test('Model.update(User,values) can modify many entities', () async {
+      await Model.update(MysqlUser,{'lastName':'Smith'}).where('lastName').eq('Jones').run();
+
+      Stream results =
+          await Model.findAll('MysqlUser').filter((user) => user.lastName == 'Smith').run();
+      List users = [];
+      await results.forEach((user) {
+        users.add(user.firstName);
+      });
+
+      expect(users,equals(['Clint','Kelly']));
+    });
+
+    test('Model.removeFrom(user) removes the given entity', () async {
       MysqlUser user = new MysqlUser()..id = 1;
       var id = await Model.removeFrom(user).run();
-      user = await Model.get('User').id(1).run();
+      user = await Model.get('MysqlUser').id(1).run();
       expect(id, equals(1));
       expect(user, equals(null));
     });
 
-    test('Model.removeAll([users]) removes the given entities', () async {
+    test('Model.removeFrom([users]) removes the given entities', () async {
       List users = []..add(new MysqlUser()..id = 2)..add(new MysqlUser()..id = 3);
       var id = await Model.removeFrom(users).run();
-      MysqlUser u1 = await Model.get('User').id(2).run();
-      MysqlUser u2 = await Model.get('User').id(3).run();
+      MysqlUser u1 = await Model.get('MysqlUser').id(2).run();
+      MysqlUser u2 = await Model.get('MysqlUser').id(3).run();
+      expect(id, equals(2));
+      expect(u1, equals(null));
+      expect(u2, equals(null));
+    });
+
+    test('Model.remove(User).where() removes the given entities', () async {
+      var id = await Model
+          .remove(MysqlUser)
+          .where('firstName')
+          .eq('Belinda')
+          .or('firstName')
+          .eq('Kelly')
+          .run();
+      MysqlUser u1 = await Model.get('MysqlUser').id(4).run();
+      MysqlUser u2 = await Model.get('MysqlUser').id(6).run();
       expect(id, equals(2));
       expect(u1, equals(null));
       expect(u2, equals(null));
