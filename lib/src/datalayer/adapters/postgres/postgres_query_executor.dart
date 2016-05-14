@@ -8,7 +8,7 @@ class PostgresQueryExecutor extends SqlExecutor {
   dynamic conn;
   int _tokenCount = 0;
 
-  PostgresQueryExecutor(adapter, chain) : super(adapter, chain) {
+  PostgresQueryExecutor(adapter, [chain]) : super(adapter, chain) {
     // Setup the values and entities sets
     values = new List();
     entities = new List();
@@ -18,12 +18,19 @@ class PostgresQueryExecutor extends SqlExecutor {
   getPlaceholder(field) => '@${_tokenCount++}';
 
   // Execute some sql
-  executeSql(sql) async {
-    conn = await psql.connect(adapter.uri);
+  executeSql(sql,[bool release]) async {
+    // conn = await psql.connect(adapter.uri);
+    conn = await adapter.pool.connect();
 
-    if (isInsert) return _execInsert(sql);
-    else if (isModify) return _execModify(sql);
-    else return await conn.query(sql, values);
+    var result;
+
+    if (isInsert) result =  _execInsert(sql);
+    else if (isModify) result = _execModify(sql);
+    else result = await conn.query(sql, values);
+
+    if (release) await conn.close();
+
+    return result;
   }
 
   // Execute a modify query

@@ -2,9 +2,9 @@ import 'package:test/test.dart';
 import 'package:shellstone/shellstone.dart';
 
 main() {
-  setUp(() {
+  setUpAll(() async {
     // Start shellstone to setup any annotations
-    strapIn();
+    await strapIn();
   });
   group('Schemas', () {
     test('Schema is loaded for NewUser', () {
@@ -43,7 +43,6 @@ main() {
     });
 
     test('Schema field for ugly is converted correct', () {
-      expect(Schema.get('NewUser').getField('ugly').autoIncr, equals(true));
       expect(Schema.get('NewUser').getField('ugly').column, equals('uglyThing'));
       expect(Schema.get('NewUser').getField('ugly').unique, equals(true));
     });
@@ -66,7 +65,6 @@ class NewUser {
       column: 'uglyThing',
       type: 'string',
       unique: true,
-      index: true,
-      autoIncr: true)
+      index: true)
   int ugly;
 }

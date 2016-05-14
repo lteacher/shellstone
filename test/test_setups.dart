@@ -10,7 +10,7 @@ class User {
   @Attr(type: 'string') String lastName;
 }
 
-@Model(name: 'user')
+@Model(name: 'user', migration: 'drop')
 class MysqlUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;
@@ -19,7 +19,7 @@ class MysqlUser {
   @Attr(type: 'string') String lastName;
 }
 
-@Model(name: 'useracc', source: 'postgres')
+@Model(name: 'useracc', source: 'postgres', migration: 'drop')
 class PostgresUser {
   @Attr(type: 'integer', primaryKey: true) int id;
   @Attr(type: 'string') String username;

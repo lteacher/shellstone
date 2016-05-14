@@ -15,16 +15,19 @@ abstract class SqlExecutor {
   dynamic values;
   dynamic entities;
 
-  SqlExecutor(this.adapter, this.chain) {
-    def = EntityBuilder.getDefinition(chain.entity);
-    schema = Schema.get(chain.entity);
+  SqlExecutor(this.adapter, [this.chain]) {
+    // It is possible to execute sql without any of this stuff
+    if (chain != null) {
+      def = EntityBuilder.getDefinition(chain.entity);
+      schema = Schema.get(chain.entity);
+    }
   }
 
   /// Execute the query
   execute() => isMulti ? execMultiResults() : execSingleResult();
 
-  /// Execute an SQL query string
-  executeSql(String sql);
+  /// Execute an SQL query string, if release true then will release the connection
+  executeSql(String sql,[bool release]);
 
   /// Gets the relevant sql operator for the given operator e.g. eq -> =
   getOperator(String op) {
@@ -256,10 +259,10 @@ abstract class SqlExecutor {
 
   get isFromEntity => reqWrapping;
   get key => schema.primaryKey.name;
-  get isMulti => chain.action == 'findAll';
-  get isUpdate => chain.action == 'update' || chain.action == 'updateFrom';
-  get isRemove => chain.action == 'remove' || chain.action == 'removeFrom';
-  get isInsert => chain.action == 'insert' || chain.action == 'insertFrom';
+  get isMulti => chain?.action == 'findAll';
+  get isUpdate => chain?.action == 'update' || chain?.action == 'updateFrom';
+  get isRemove => chain?.action == 'remove' || chain?.action == 'removeFrom';
+  get isInsert => chain?.action == 'insert' || chain?.action == 'insertFrom';
   get isModify => isInsert || isUpdate || isRemove;
 
   // Gets a column name else returns the given
@@ -268,11 +271,8 @@ abstract class SqlExecutor {
     return field != null ? field.column : name;
   }
 
-  // Converts the provided fields to columns to help out
-  _mutateColumns(map) {}
-
   // Determines if this action needs advanced wrapping
-  get reqWrapping => (chain.action != 'insert' &&
-      chain.action != 'update' &&
-      chain.action != 'remove');
+  get reqWrapping => (chain?.action != 'insert' &&
+      chain?.action != 'update' &&
+      chain?.action != 'remove');
 }

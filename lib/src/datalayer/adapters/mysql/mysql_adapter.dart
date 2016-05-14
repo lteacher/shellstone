@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:sqljocky/sqljocky.dart' as mysql;
 import 'mysql_query_executor.dart';
+import 'mysql_builder.dart';
 import '../sql_adapter.dart';
 import '../../querylang.dart';
 
@@ -18,28 +19,29 @@ class MysqlAdapter extends SqlAdapter {
   // Name getter
   get name => 'mysql';
 
-  /// Setup the connection pool. This occurs only if [conn] is not set
-  /// That gives an adapter listener a chance to create it instead
-  Future configure() async {
-    if (pool == null) {
-      pool = new mysql.ConnectionPool(
-          host: host,
-          port: port,
-          user: user,
-          password: password,
-          db: db,
-          max: 5);
-    }
-  }
+  /// No special config is required
+  Future configure() async {}
 
-  /// Setup the connection, nothing to do here
-  Future connect() {}
+  // Setup the connection pool
+  Future connect() {
+    pool ??= new mysql.ConnectionPool(
+        host: host,
+        port: port,
+        user: user,
+        password: password,
+        db: db,
+        max: 5);
+  }
 
   /// Close any connections
   Future disconnect() async => await pool.closeConnectionsWhenNotInUse();
 
-  // TODO: For later release
-  Future build() {}
+  // Build any tables etc
+  Future build() async {
+    var builder = new MysqlBuilder(this);
+    var statements = builder.getStatements();
+    return Future.forEach(statements, (sql) => executeSql(sql));
+  }
 
   /// Returns an sqljocky connection
   Future<mysql.RetainedConnection> get driver async =>
@@ -49,5 +51,5 @@ class MysqlAdapter extends SqlAdapter {
   execute(chain) => new MysqlQueryExecutor(this, chain).execute();
 
   // Execute some sql
-  executeSql(String sql) => new MysqlQueryExecutor(this, new QueryChain()).executeSql(sql);
+  executeSql(String sql) => new MysqlQueryExecutor(this).executeSql(sql);
 }

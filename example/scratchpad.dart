@@ -5,6 +5,7 @@ main() async {
   await strapIn();
 }
 
+
 // Javascript Examples
 // User.find({ where: { name: 'foo' }, skip: 20, limit: 10, sort: 'name DESC' });
 // User.find({ name: { '!' : ['Walter', 'Skyler'] }});
