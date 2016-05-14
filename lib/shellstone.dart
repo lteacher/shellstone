@@ -50,6 +50,13 @@ strapIn({withAdapters: true}) {
   return _runAdapters();
 }
 
+/// Shuts down shellstone.
+///
+/// All the adapters will be disconnected
+shutDown() {
+  return Future.forEach(_adapters.values,(adapter) => adapter.disconnect());
+}
+
 /// Retrieves an adapter by name.
 ///
 /// For example it can retrieve supported or even added adapters such as
@@ -101,8 +108,8 @@ Future _runAdapters() {
         .asyncMap((event) => EventDispatcher
             .trigger(new AdapterEvent(event, adapter))
             .then((v) => event))
-        .listen((event) => invokeMethod(adapter, event))
-        .asFuture());
+        .asyncMap((event) => invokeMethod(adapter, event))
+        .drain());
   });
 
   // Add the events to the pipe

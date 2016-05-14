@@ -8,7 +8,7 @@ import '../../../entities/entity_builder.dart';
 /// return of either a stream or future. There is probably a nicer way
 /// to get around that but for now... got to go with what works
 class MysqlQueryExecutor extends SqlExecutor {
-  MysqlQueryExecutor(adapter, chain) : super(adapter, chain) {
+  MysqlQueryExecutor(adapter, [chain]) : super(adapter, chain) {
     values = new List();
     entities = new List();
   }

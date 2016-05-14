@@ -79,12 +79,11 @@ class EntityWrapper {
       case 'integer':
       case 'int':
         return value is int ? value : int.parse(value);
-      case 'float':
       case 'double':
         return value is double ? value : double.parse(value);
       case 'datetime':
       case 'DateTime':
-      // return new DateTime() TODO: Implement this
+        return value is DateTime ? value : DateTime.parse(value);
       default:
         return value;
     }

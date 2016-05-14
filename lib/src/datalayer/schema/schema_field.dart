@@ -20,12 +20,14 @@ class SchemaField {
 
   // Getters
   get type => _attr.type ?? _convertType(_def.fieldType(name));
-  get autoIncr => _attr.autoIncr;
   get index => _attr.index;
   get column => _column;
   get primaryKey => _attr.primaryKey;
-  get len => _attr.length ?? 0;
+  get length => _attr.length ?? 0;
   get unique => _attr.unique;
+
+  // If the field is a primary key and the auto isnt set then it defaults to true
+  get autoIncr => _attr.autoIncr == null ? primaryKey : false;
 
   // Map column, postgres is case insensitive... hmmm
   String get _column => _schema.source == 'postgres'
@@ -40,7 +42,7 @@ class SchemaField {
       case int:
         return 'integer';
       case double:
-        return 'float';
+        return 'double';
       case DateTime:
         return 'datetime';
       case bool:

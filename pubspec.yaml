@@ -14,6 +14,7 @@ dependencies:
   collection: '>=1.5.1 <2.0.0'
   sqljocky: '>=0.14.1 <0.15.0'
   quiver: '>=0.22.0 <0.23.0'
+  meta: '>=0.12.1 <0.13.0'
   postgresql:
     git:
       url: https://github.com/lteacher/dart_postgresql.git

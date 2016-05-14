@@ -3,9 +3,9 @@ import 'package:shellstone/shellstone.dart';
 import '../test_setups.dart';
 
 main() {
-  setUp(() {
+  setUpAll(() async {
     // Start shellstone to setup any annotations
-    strapIn();
+    await strapIn();
   });
   group('Events', () {
     test('@Hook on adapter configure is executed', () {

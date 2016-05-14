@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'querylang.dart';
+import 'package:meta/meta.dart';
 
 /// An adapter which sets up database connections and handles queries
 ///

@@ -4,9 +4,9 @@ import 'package:shellstone/shellstone.dart';
 import '../test_setups.dart';
 
 main() {
-  setUp(() {
+  setUpAll(() async {
     // Start shellstone to setup any annotations
-    strapIn();
+    await strapIn();
   });
   group('Annotations', () {
     test('@Model(name) can set the resource for the model', () {

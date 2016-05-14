@@ -94,7 +94,7 @@ class Attr {
       this.unique: false,
       this.index: false,
       this.length,
-      this.autoIncr:false});
+      this.autoIncr});
 }
 
 /// An annotation to indicate the existence of a Database Adapter
