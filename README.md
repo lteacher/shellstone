@@ -29,7 +29,7 @@ main() async {
 
 #### Models
 
-You can annotate `@Model`s as per the following simple example
+You can annotate a `@Model` as per the following simple example
 
 ```dart
 import 'package:shellstone/shellstone.dart';
@@ -152,7 +152,6 @@ Take a look at the tests for even more examples
 Check the issues for a clearer set of upcoming features. However know that the following are features that are in the immediate future
 
 - Relations between models
-- Auto build of tables / db
 - Richer query set including modifiers
 
 ## Contributing
