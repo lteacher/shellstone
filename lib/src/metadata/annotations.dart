@@ -22,7 +22,11 @@ class Model {
   final bool schema = true;
 
   /// Constructs a [Model] const with the given values
-  const Model({this.name, this.source, this.migration:'safe'});
+  const Model({this.name, this.source, this.migration: 'safe'});
+
+  /// Copy contructor to allow name change
+  factory Model.copy(String name, Model model) =>
+      new Model(name: name, source: model.source, migration: model.migration);
 
   /// Takes a Model [name] e.g. 'User' and returns an [Identifier].
   ///
@@ -34,7 +38,8 @@ class Model {
   static SingleResultQuery find(name) => new QueryAction(_convert(name)).find();
 
   /// The [findAll] method is used to find a *all* matching entites
-  static MultipleResultQuery findAll(name) => new QueryAction(_convert(name)).findAll();
+  static MultipleResultQuery findAll(name) =>
+      new QueryAction(_convert(name)).findAll();
 
   /// The [insert] method is used to insert a given set of values
   static SingleResultRunnable insert(name, values) =>
@@ -45,7 +50,7 @@ class Model {
       new QueryAction(Metadata.name(entities)).insertFrom(entities);
 
   /// The [update] method is used to update an entity where matches
-  static SingleResultQuery update(name,values) =>
+  static SingleResultQuery update(name, values) =>
       new QueryAction(_convert(name)).update(values);
 
   /// The [updateFrom] method updates from the given entity or entities
@@ -61,7 +66,7 @@ class Model {
       new QueryAction(Metadata.name(entities)).removeFrom(entities);
 
   // Shortcut to convert a type to string if required
-  static String _convert(name) => (name is Type) ? name.toString():name;
+  static String _convert(name) => (name is Type) ? name.toString() : name;
 }
 
 /// An annotation to represent the metadata of an Attribute.
@@ -122,10 +127,16 @@ class Adapter {
 
 /// Defines a [Handler] such as a [Hook] or a [Listen]er
 abstract class Handler {
-  final String loc;
   final EventRegistration reg;
 
-  const Handler(this.reg, [this.loc = 'pre']);
+  const Handler(this.reg);
+}
+
+/// An annotation to define a relationship between models
+class Rel {
+  final Type model;
+
+  const Rel({this.model});
 }
 
 /// An annotation to set a listener for a particular event
@@ -134,8 +145,6 @@ abstract class Handler {
 /// and are generally for notification as they are fired off async
 class Listen extends Handler {
   const Listen(EventRegistration reg) : super(reg);
-  const Listen.pre(EventRegistration reg) : super(reg);
-  const Listen.post(EventRegistration reg) : super(reg, 'post');
 }
 
 /// An annotation to set a hook in for a particular event
@@ -145,6 +154,4 @@ class Listen extends Handler {
 /// similar to a map function.
 class Hook extends Handler {
   const Hook(EventRegistration reg) : super(reg);
-  const Hook.pre(EventRegistration reg) : super(reg);
-  const Hook.post(EventRegistration reg) : super(reg, 'post');
 }

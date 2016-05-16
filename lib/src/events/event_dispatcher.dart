@@ -10,13 +10,13 @@ class EventDispatcher {
   /// Triggers an event by [Type], [name] with the given data.
   ///
   /// for example: `triggerEvent(Adapter,'configure',_adapter)`
-  static Future triggerEvent(Type t, String name, {dynamic data, loc: 'pre'}) =>
-      trigger(new Event(t, name, data, loc));
+  static Future triggerEvent(Type t, String name, {dynamic data}) =>
+      trigger(new Event(t, name, data));
 
   /// Triggers an event by a given registration
   static Future triggerRegistration(EventRegistration reg,
-          {dynamic data, loc: 'pre'}) =>
-      trigger(new Event(reg.type, reg.name, data, loc));
+          {dynamic data}) =>
+      trigger(new Event(reg.type, reg.name, data));
 
   /// Triggers a given [Event] object
   static Future trigger(Event e) {
@@ -37,7 +37,7 @@ class EventDispatcher {
     StreamController ctrl = new StreamController.broadcast();
     Stream stream = ctrl.stream;
 
-    listeners[reg].where((EventHandler h) => h.loc == e.loc).forEach((f){
+    listeners[reg].forEach((f){
       // Add each handler's delegeate as a listener
       stream.listen(f.delegate);
     });
@@ -55,7 +55,7 @@ class EventDispatcher {
     // Create stream from the event
     Stream stream = new Stream.fromIterable([e]);
 
-    hooks[reg].where((EventHandler h) => h.loc == e.loc).forEach((f){
+    hooks[reg].forEach((f){
       // Add each handler's delegeate into the stream mapping
       stream = stream.asyncMap((event) => f.delegate(event) ?? event);
     });

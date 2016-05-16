@@ -13,11 +13,12 @@ import 'query_runner.dart';
 /// Essentially the classes here are all part of a Query
 abstract class QueryToken {
   QueryChain _chain;
+  QueryRunner runner;
   String operator;
   Iterable args;
 
   /// Takes a single [QueryChain] as an argument
-  QueryToken(this._chain);
+  QueryToken(this._chain,[QueryRunner this.runner]);
 
   // Allows conveniently setting the operator, values and returning the result
   dynamic init(op, val, result) {
@@ -32,7 +33,7 @@ abstract class QueryToken {
     return result;
   }
 
-  runChain() => new QueryRunner(chain).run();
+  runChain() => runner == null ? new QueryRunner(chain).run() : runner.run();
 
   get chain => _chain;
 }

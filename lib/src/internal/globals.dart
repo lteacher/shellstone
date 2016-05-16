@@ -18,7 +18,7 @@ dynamic invokeMethod(object, name) {
 }
 
 // Add a handler which is a listener or a hook
-addHandler(Type t,reg,f,loc) {
+addHandler(Type t,reg,f) {
   List handlers;
 
   if (t == Listen) {
@@ -30,8 +30,21 @@ addHandler(Type t,reg,f,loc) {
   // Try to find an entry with the given function
   handlers.firstWhere((EventHandler h) => h.delegate == f, orElse: () {
     // Else add it in
-    handlers.add(new EventHandler(loc, reg, f));
+    handlers.add(new EventHandler(reg, f));
   });
+}
+
+// Remove a handler
+removeHandler(Type t,reg,f) {
+  if (t == Listen) {
+    if (!listeners.containsKey(reg)) return;
+
+    listeners[reg].removeWhere((EventHandler h) => h.delegate == f);
+  } else {
+    if (!hooks.containsKey(reg)) return;
+
+    hooks[reg].removeWhere((EventHandler h) => h.delegate == f);
+  }
 }
 
 final String defaultSource = 'mysql';

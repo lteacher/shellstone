@@ -19,10 +19,11 @@ class QueryAction {
   QueryChain _chain;
 
   // Constructor
-  QueryAction(String name) {
+  QueryAction(String name,[this._chain]) {
     this.name = name;
-    _chain = new QueryChain()..setQueryAction(this);
     model = Metadata.model(name);
+    if (_chain == null) _chain = new QueryChain()..setQueryAction(this);
+    else _chain.setQueryAction(this);
   }
 
   dynamic _init(type, result) {

@@ -19,7 +19,6 @@ class PostgresQueryExecutor extends SqlExecutor {
 
   // Execute some sql
   executeSql(sql,[bool release]) async {
-    // conn = await psql.connect(adapter.uri);
     conn = await adapter.pool.connect();
 
     var result;
@@ -69,7 +68,7 @@ class PostgresQueryExecutor extends SqlExecutor {
     } else {
       List rows = await results
           .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
-          .where((user) => filter != null ? filter(user) : true)
+          .where((entity) => filter != null ? filter(entity) : true)
           .toList();
 
       conn.close();
@@ -94,7 +93,7 @@ class PostgresQueryExecutor extends SqlExecutor {
 
     yield* ctrl.stream
         .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
-        .where((user) => filter != null ? filter(user) : true);
+        .where((entity) => filter != null ? filter(entity) : true);
   }
 
   List mapInsertCmd(token) {

@@ -34,7 +34,7 @@ You can annotate a `@Model` as per the following simple example
 ```dart
 import 'package:shellstone/shellstone.dart';
 
-// Annotate this class as being a Model class with identity user
+// Annotate this class as being a Model class which corresponds table 'user'
 @Model(name: 'user', source: 'mysql')
 class User {
 

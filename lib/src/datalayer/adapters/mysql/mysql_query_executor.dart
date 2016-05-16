@@ -17,7 +17,7 @@ class MysqlQueryExecutor extends SqlExecutor {
   getPlaceholder(field) => '?';
 
   // Executes a query
-  Future executeSql(String sql) async {
+  Future executeSql(String sql,[bool release]) async {
     var query = await adapter.pool.prepare(sql);
 
     var results;
@@ -76,7 +76,7 @@ class MysqlQueryExecutor extends SqlExecutor {
       List rows = await results
           .map((row) => new Map.fromIterables(fields, row))
           .map((row) => EntityBuilder.unwrap(chain.entity, row))
-          .where((user) => filter != null ? filter(user) : true)
+          .where((entity) => filter != null ? filter(entity) : true)
           .toList();
 
       return new Future.value(!rows.isEmpty ? rows.first : null);
@@ -92,6 +92,6 @@ class MysqlQueryExecutor extends SqlExecutor {
     yield* results
         .map((row) => new Map.fromIterables(fields, row))
         .map((row) => EntityBuilder.unwrap(chain.entity, row))
-        .where((user) => filter != null ? filter(user) : true);
+        .where((entity) => filter != null ? filter(entity) : true);
   }
 }

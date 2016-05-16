@@ -61,7 +61,7 @@ class MetadataScanner {
         throw 'Invalid handler `$name` provided for `${reflectee.runtimeType}`';
 
       // Set the handlers
-      addHandler(reflectee.runtimeType, reflectee.reg, fn, reflectee.loc);
+      addHandler(reflectee.runtimeType, reflectee.reg, fn);
     }
   }
 
@@ -71,8 +71,8 @@ class MetadataScanner {
     MetadataProxy proxy;
 
     if (r.runtimeType == Model) {
-      // If the model has no name give it the class name
-      r.name ??= name;
+      // If the model has no name give it the class name via copy
+      if (r.name == null) r = new Model.copy(name.toLowerCase(),r);
 
       map = models;
       proxy = new ModelMetadata(m, r);
