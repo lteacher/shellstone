@@ -18,15 +18,18 @@ class PostgresQueryExecutor extends SqlExecutor {
   getPlaceholder(field) => '@${_tokenCount++}';
 
   // Execute some sql
-  executeSql(sql,[bool release]) async {
+  executeSql(sql, [bool release]) async {
     // conn = await psql.connect(adapter.uri);
     conn = await adapter.pool.connect();
 
     var result;
 
-    if (isInsert) result =  _execInsert(sql);
-    else if (isModify) result = _execModify(sql);
-    else result = await conn.query(sql, values);
+    if (isInsert)
+      result = _execInsert(sql);
+    else if (isModify)
+      result = _execModify(sql);
+    else
+      result = await conn.query(sql, values);
 
     if (release) await conn.close();
 
@@ -67,35 +70,28 @@ class PostgresQueryExecutor extends SqlExecutor {
 
       return results;
     } else {
-      List rows = await results
-          .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
-          .where((user) => filter != null ? filter(user) : true)
-          .toList();
-
-      conn.close();
+      List rows = await _mapResults(results);
 
       return new Future.value(!rows.isEmpty ? rows.first : null);
     }
   }
 
-  // Executes a query that will return a Stream, hence the generator
-  Stream execMultiResults() async* {
-    var results = await executeSql(buildQuery());
-
-    // Use this to attach the connection close
-    var ctrl = new StreamController();
-    var done = ctrl.addStream(results);
-
-    // When done close the controller and the connection
-    done.then((_) {
-      ctrl.close();
-      conn.close();
-    });
-
-    yield* ctrl.stream
+  // Map the results over
+  _mapResults(results) {
+    var list = results
         .map((row) => EntityBuilder.unwrap(chain.entity, row.toMap()))
-        .where((user) => filter != null ? filter(user) : true);
+        .where((user) => filter != null ? filter(user) : true)
+        .toList();
+
+    // Later on complete close the connection
+    list.then((_) => conn.close());
+
+    return list;
   }
+
+  // Executes a query that will return a list of results
+  Future<List<dynamic>> execMultiResults() async =>
+      _mapResults(await executeSql(buildQuery()));
 
   List mapInsertCmd(token) {
     var result = super.mapInsertCmd(token);

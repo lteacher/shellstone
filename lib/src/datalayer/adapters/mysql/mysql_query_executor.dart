@@ -17,7 +17,7 @@ class MysqlQueryExecutor extends SqlExecutor {
   getPlaceholder(field) => '?';
 
   // Executes a query
-  Future executeSql(String sql) async {
+  Future executeSql(String sql, [bool release]) async {
     var query = await adapter.pool.prepare(sql);
 
     var results;
@@ -66,32 +66,26 @@ class MysqlQueryExecutor extends SqlExecutor {
     var results = await executeSql(buildQuery());
 
     if (isModify) {
-      // Somehow its a stream of streams?
       return results;
     } else {
-      var fields = results.fields.map((f) => f.name);
-
-      // Get the rows to a list and map it as otherwise its
-      // just not possible to know if it is empty to take the `first`
-      List rows = await results
-          .map((row) => new Map.fromIterables(fields, row))
-          .map((row) => EntityBuilder.unwrap(chain.entity, row))
-          .where((user) => filter != null ? filter(user) : true)
-          .toList();
+      List rows = await _mapResults(results);
 
       return new Future.value(!rows.isEmpty ? rows.first : null);
     }
   }
 
-  // Executes a query that will return a Stream, hence the generator
-  Stream execMultiResults() async* {
-    var results = await executeSql(buildQuery());
-
+  Future _mapResults(results) async {
     var fields = results.fields.map((f) => f.name);
 
-    yield* results
+    // Return the mapped results list
+    return await results
         .map((row) => new Map.fromIterables(fields, row))
         .map((row) => EntityBuilder.unwrap(chain.entity, row))
-        .where((user) => filter != null ? filter(user) : true);
+        .where((user) => filter != null ? filter(user) : true)
+        .toList();
   }
+
+  // Executes a query that will return a list of results
+  Future<List<dynamic>> execMultiResults() async =>
+      _mapResults(await executeSql(buildQuery()));
 }
