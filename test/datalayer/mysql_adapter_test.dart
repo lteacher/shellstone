@@ -101,7 +101,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).eq(v) finds the correct two users',
         () async {
-      Stream results =
+      List results =
           await Model.findAll('MysqlUser').where('lastName').eq('Jones').run();
       List users = [];
       await results.forEach((user) {
@@ -113,7 +113,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).ne(v) finds the correct user',
         () async {
-      Stream results =
+      List results =
           await Model.findAll('MysqlUser').where('lastName').ne('Jones').run();
       List users = [];
       await results.forEach((user) {
@@ -125,7 +125,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).gt(v) finds the correct single user',
         () async {
-      Stream results = await Model.findAll('MysqlUser').where('id').gt(5).run();
+      List results = await Model.findAll('MysqlUser').where('id').gt(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -136,7 +136,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).ge(v) finds the correct two users',
         () async {
-      Stream results = await Model.findAll('MysqlUser').where('id').ge(5).run();
+      List results = await Model.findAll('MysqlUser').where('id').ge(5).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -147,7 +147,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).lt(v) finds the correct single user',
         () async {
-      Stream results = await Model.findAll('MysqlUser').where('id').lt(2).run();
+      List results = await Model.findAll('MysqlUser').where('id').lt(2).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -158,7 +158,7 @@ main() {
 
     test('Model.findAll(`User`).where(f).le(v) finds the correct two users',
         () async {
-      Stream results = await Model.findAll('MysqlUser').where('id').le(2).run();
+      List results = await Model.findAll('MysqlUser').where('id').le(2).run();
       List users = [];
       await results.forEach((user) {
         users.add(user.firstName);
@@ -170,7 +170,7 @@ main() {
     test(
         'Model.findAll(`User`).where(f).eq(v).or(f).eq(v) finds the correct two users',
         () async {
-      Stream results = await Model
+      List results = await Model
           .findAll('MysqlUser')
           .where('id')
           .eq(1)
@@ -188,7 +188,7 @@ main() {
     test(
         'Model.findAll(`User`).where(f).eq(v).and(f).eq(v) finds the correct users',
         () async {
-      Stream results = await Model
+      List results = await Model
           .findAll('MysqlUser')
           .where('lastName')
           .eq('Jones')
@@ -206,7 +206,7 @@ main() {
     test(
         'Model.findAll(`User`).where(f).complex A... finds the correct two users',
         () async {
-      Stream results = await Model
+      List results = await Model
           .findAll('MysqlUser')
           .where('lastName')
           .eq('Jones')
@@ -226,7 +226,7 @@ main() {
     test(
         'Model.findAll(`User`).where(f).complex B... finds the correct two users',
         () async {
-      Stream results =
+      List results =
           await Model.findAll('MysqlUser').where('id').gt(1).and('id').lt(3).run();
       List users = [];
       await results.forEach((user) {
@@ -252,7 +252,7 @@ main() {
 
     test('Model.findAll(`User`).filter(user) returns the correct users',
         () async {
-      Stream results = await Model
+      List results = await Model
           .findAll('MysqlUser')
           .filter(
               (user) => user.firstName == 'Jim' || user.firstName == 'Charles')
@@ -271,7 +271,7 @@ main() {
     });
 
     test('Model.findAll(`User`).filter(user) returns the empty set', () async {
-      Stream results =
+      List results =
           await Model.findAll('MysqlUser').filter((user) => true == false).run();
       List users = [];
       await results.forEach((user) {
@@ -316,7 +316,7 @@ main() {
     test('Model.update(User,values) can modify many entities', () async {
       await Model.update(MysqlUser,{'lastName':'Smith'}).where('lastName').eq('Jones').run();
 
-      Stream results =
+      List results =
           await Model.findAll('MysqlUser').filter((user) => user.lastName == 'Smith').run();
       List users = [];
       await results.forEach((user) {

@@ -102,13 +102,13 @@ main() async {
   await Shellstone.setup();
 
   // Get the first user where it matches the query
-  User user = await Model.find('User').where('username').eq('1234').run();
+  User user = await Model.find(User).where('username').eq('1234').run();
 
-  // Get user using filter
+  // Get user using filter (the filter is lazily executed on the streaming query results)
   user = await Model.find('User').filter((user) => user.lastName == 'Smith').run();
 
-  // Find all users
-  Stream<User> users = await Model.findAll('User').run();
+  // Find all users (String or Type are valid args)
+  List<User> users = await Model.findAll('User').run();
 
   // Insert a user object
   List ids = await Model.insertFrom(user).run();
