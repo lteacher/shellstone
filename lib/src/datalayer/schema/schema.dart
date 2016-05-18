@@ -45,7 +45,7 @@ class Schema {
 
   // Loads up the fields for the schema into the various flattened collections
   _buildFields() {
-    _meta.dependents.forEach((name,attr) {
+    _meta.attributes.forEach((name,attr) {
       var field = new SchemaField(this, name, attr);
 
       // Add to fields and columns

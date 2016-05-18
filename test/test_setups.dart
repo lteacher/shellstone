@@ -34,6 +34,13 @@ class Person {
   @Attr(type: 'string', column: 'FirstName') String firstName;
   @Attr(type: 'string', column: 'LastName') String lastName;
   @Attr(type: 'integer', column: 'Age') String age;
+
+  @Rel(model: Address, by: 'id', as: 'person_id') List addresses;
+}
+
+@Model()
+class Address {
+  @Attr(primaryKey:true) int id;
 }
 
 @Adapter('mongo')

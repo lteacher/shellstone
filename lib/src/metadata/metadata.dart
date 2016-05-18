@@ -28,6 +28,9 @@ class Metadata {
   /// Returns the attributes Map for the model [name]
   static Map<String, Attr> attr(String name) => _modelProxy(name).dependents;
 
+  /// Returns the relations Map for a given model [name]
+  static Map<String, Rel> rel(String name) => _modelProxy(name).dependents;
+
   /// Returns the name for the entity or list of entities
   static String name(dynamic entity) {
     if (entity is List) entity = entity[0];

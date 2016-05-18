@@ -8,7 +8,7 @@ class User {
   @Attr() String password;
 
   // Has one to many 'roles', the model relation is inferred by <Role>
-  @Rel() List<Role> roles;
+  @Rel(model: Role, by: 'id', as: 'user_id') List<Role> roles;
 }
 
 @Model()

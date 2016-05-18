@@ -32,6 +32,11 @@ main() {
     test('@Adapter(name) sets the adapter name', () {
       expect(dbAdapter.name,equals('mongo'));
     });
+
+    @skip
+    test('@Rel(model) sets the correct Model type', () {
+      // expect(dbAdapter.name,equals('mongo'));
+    });
   });
 }
 

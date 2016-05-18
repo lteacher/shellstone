@@ -3,13 +3,14 @@ import 'annotations.dart';
 
 abstract class MetadataProxy {
   ClassMirror ref;
-  Map<String, dynamic> dependents = new Map();
   MetadataProxy(this.ref);
 }
 
 /// Wraps a model by combining the [Model], reflectee and [Attr]ibutes
 class ModelMetadata extends MetadataProxy {
   Model model;
+  Map<String, Attr> attributes = new Map();
+  Map<String, Rel> relations = new Map();
   ModelMetadata(ref, this.model) : super(ref);
 }
 

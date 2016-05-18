@@ -135,8 +135,10 @@ abstract class Handler {
 /// An annotation to define a relationship between models
 class Rel {
   final Type model;
+  final String by;
+  final String as;
 
-  const Rel({this.model});
+  const Rel({this.model,this.by,this.as});
 }
 
 /// An annotation to set a listener for a particular event
