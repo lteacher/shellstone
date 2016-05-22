@@ -31,11 +31,18 @@ class PostgresUser {
 @Model(name: 'person', source: 'mongo')
 class Person {
   @Attr(type: 'integer', primaryKey: true) int id;
+  @Attr() int externalId;
   @Attr(type: 'string', column: 'FirstName') String firstName;
   @Attr(type: 'string', column: 'LastName') String lastName;
   @Attr(type: 'integer', column: 'Age') String age;
 
-  @Rel(model: Address, by: 'id', as: 'person_id') List addresses;
+  @Rel(model: Address, by: 'externalId', as: 'legacy_person_id') List addresses;
+}
+
+@Model()
+class Business {
+  @Attr(primaryKey: true) int id;
+  @Rel() List<Address> addresses;
 }
 
 @Model()

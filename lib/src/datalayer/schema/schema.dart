@@ -1,5 +1,7 @@
 import 'schema_field.dart';
+import 'schema_relation.dart';
 import '../../metadata/metadata_proxies.dart';
+import '../../metadata/annotations.dart';
 import '../../internal/globals.dart';
 
 /// Acts as an interpretation of a form of `schema` in shellstone terms
@@ -10,18 +12,21 @@ import '../../internal/globals.dart';
 /// possible.
 class Schema {
   // Cache of all schemas
-  static Map<String,Schema> _schemas = {};
-  Map<String,SchemaField> _fields = {};  // All fields
-  Map<String,SchemaField> _indexes = {}; // Fields that are index: true
-  Map<String,SchemaField> _columns = {}; // Fields by their column name
+  static Map<String, Schema> _schemas = {};
+  Map<String, SchemaField> _fields = {}; // All fields
+  Map<String, SchemaField> _indexes = {}; // Fields that are index: true
+  Map<String, SchemaField> _columns = {}; // Fields by their column name
+  Map<String, SchemaField> _derived = {}; // Fields that ref another Schema
+  Map<String, SchemaRelation> _relations = {};
   ModelMetadata _meta;
 
   String name;
   SchemaField primaryKey;
 
-  Schema._(this.name,[this._meta]) {
-    // Build the schema fields out
+  Schema._(this.name, [this._meta]) {
+    // Build the schema fields and relations
     _buildFields();
+    _buildRels();
   }
 
   /// Gets a schema by [name]
@@ -35,17 +40,17 @@ class Schema {
   static Iterable<Schema> getAll() => _schemas.values;
 
   /// Creates a new schema or retrieves from the cache
-  factory Schema.fromMetadata(name,ModelMetadata meta){
+  factory Schema.fromMetadata(name, ModelMetadata meta) {
     // Schema is in the cache so return it
     if (_schemas.containsKey(name)) return _schemas[name];
 
     // Else create and return new
-    return _schemas.putIfAbsent(name, () => new Schema._(name,meta));
+    return _schemas.putIfAbsent(name, () => new Schema._(name, meta));
   }
 
   // Loads up the fields for the schema into the various flattened collections
   _buildFields() {
-    _meta.attributes.forEach((name,attr) {
+    _meta.attributes.forEach((name, attr) {
       var field = new SchemaField(this, name, attr);
 
       // Add to fields and columns
@@ -55,6 +60,40 @@ class Schema {
       // if its a primary key add it here
       if (field.primaryKey) primaryKey = field;
       if (field.index) _indexes[name] = field;
+    });
+  }
+
+  // Builds the relations / associations between models
+  _buildRels() {
+    _meta.relations.forEach((name, rel) {
+      var relation = new SchemaRelation(this, name, rel);
+
+      // Add to relations
+      _relations[name] = relation;
+    });
+  }
+
+  // Updates schemas with new derived fields from their relations
+  transferDerivedFields() {
+    _relations.forEach((name, rel) {
+      // Get the schema which this relation is pointing to
+      var schema = Schema.get(rel.model.toString());
+
+      // Get relevant schema field from this schema
+      var name = rel.as;
+      var field = getField(rel.by);
+      var derived = new SchemaField.copy(field,
+          name: name,
+          attr: new Attr(
+              type: field.type,
+              column: name,
+              index: true,
+              length: field.length),
+          derived: true);
+
+      // Add to derived fields and indexes
+      schema._derived[name] = derived;
+      schema._indexes[name] = derived;
     });
   }
 
@@ -68,14 +107,30 @@ class Schema {
   String get migration => _meta.model.migration;
 
   /// Retrieves all fields as written per the object
-  Map<String,SchemaField> get fields => _fields;
+  Map<String, SchemaField> get fields => _fields;
+
+  /// Returns all fields including derived, useful for table creation
+  Map<String, SchemaField> get allFields {
+    var all = new Map.from(_fields);
+    all.addAll(_derived);
+    return all;
+  }
 
   /// Retrieves all indexes as written per the object
-  Map<String,SchemaField> get indexes => _indexes;
+  Map<String, SchemaField> get indexes => _indexes;
+
+  /// Retrieves all fields which are attached through relations
+  Map<String, SchemaField> get derived => _derived;
 
   /// Retrieves a single field by name
   SchemaField getField(String name) => fields[name];
 
   /// Retrieves a single field by its column, which _may_ be the same as the name
   SchemaField getColumn(String name) => _columns[name];
+
+  /// Retreives a single derived field by name (which is the column name)
+  SchemaField getDerived(String name) => _derived[name];
+
+  /// Retrieves a schema relation by its name
+  SchemaRelation getRelation(String name) => _relations[name];
 }

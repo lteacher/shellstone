@@ -39,10 +39,27 @@ main() {
       expect(Metadata.name(user), equals('User'));
     });
 
-    // Cant get this one to match for some reason
-    // test('Unknown Model type throws error', () {
-    //   expect(Metadata.name(const Symbol('Explode')), throwsA(new isInstanceOf<Exception>()));
-    // });
+    test('Unknown Model type throws error', () {
+      expect(() => Metadata.name(const Symbol('Explode')), throwsA(new isInstanceOf<String>()));
+    });
+
+    test('Metadata.rel(name) returns a Rel class', () {
+      expect(Metadata.rel('Person')['addresses'], new isInstanceOf<Rel>());
+    });
+
+    test('Rel model type can be retrieved', () {
+      expect(Metadata.rel('Person')['addresses'].model, equals(Address));
+    });
+
+    test('Rel model type can be retrieved and inferred', () {
+      expect(Metadata.rel('Business')['addresses'].model, equals(Address));
+    });
+
+    test('Rel members are captured', () {
+      Rel rel = Metadata.rel('Person')['addresses'];
+      expect(rel.by, equals('externalId'));
+      expect(rel.as, equals('legacy_person_id'));
+    });
   });
 }
 

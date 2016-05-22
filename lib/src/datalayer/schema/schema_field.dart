@@ -13,9 +13,18 @@ class SchemaField {
   String name;
   Attr _attr;
   EntityDefinition _def;
+  bool derived; // Indicates the field is derived from a relation
 
-  SchemaField(this._schema, this.name, Attr this._attr) {
+  SchemaField(this._schema, this.name, Attr this._attr,
+      [this.derived = false]) {
     _def = EntityBuilder.getDefinition(_schema.name);
+  }
+
+  // Field copy, Apparently dartfmt makes this pretty ugly
+  factory SchemaField.copy(SchemaField field,
+      {schema, name, Attr attr, derived}) {
+    return new SchemaField(schema ?? field._schema, name ?? field.name,
+        attr ?? field._attr, derived ?? field.derived);
   }
 
   // Getters

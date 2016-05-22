@@ -21,6 +21,8 @@ export 'src/metadata/metadata_proxies.dart';
 export 'src/datalayer/database_adapter.dart';
 export 'src/datalayer/querylang.dart';
 export 'src/datalayer/schema/schema.dart';
+export 'src/datalayer/schema/schema_field.dart';
+export 'src/datalayer/schema/schema_relation.dart';
 export 'src/events/events.dart';
 export 'src/events/event_registration.dart';
 export 'src/entities/entity_wrapper.dart';
@@ -155,4 +157,8 @@ _loadSchemas() {
 
   // Construct the schema which will slam it into the cache
   meta.forEach((name, proxy) => new Schema.fromMetadata(name, proxy));
+
+  // Copies relation keys into their schemas, at least it only happens once
+  // otherwise a nicer solution might be better for this...
+  Schema.getAll().forEach((schema) => schema.transferDerivedFields());
 }

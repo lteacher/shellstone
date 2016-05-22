@@ -26,10 +26,10 @@ class Metadata {
   static Model model(String name) => _modelProxy(name).model;
 
   /// Returns the attributes Map for the model [name]
-  static Map<String, Attr> attr(String name) => _modelProxy(name).dependents;
+  static Map<String, Attr> attr(String name) => _modelProxy(name).attributes;
 
   /// Returns the relations Map for a given model [name]
-  static Map<String, Rel> rel(String name) => _modelProxy(name).dependents;
+  static Map<String, RelWrapper> rel(String name) => _modelProxy(name).relations;
 
   /// Returns the name for the entity or list of entities
   static String name(dynamic entity) {
@@ -44,10 +44,6 @@ class Metadata {
 
   /// Returns the [Adapter] metadata by [name]
   static Adapter adapter(String name) => _adapterProxy(name).adapter;
-
-  // /// Returns the [DBAdapter] @event handlers for a given adapter [name]
-  // static Map<String, dynamic> handlers(String name) =>
-  //     _adapterProxy(name).dependents;
 
   /// Tests the existence of some kind of metadata
   static bool exists(String type, String name) {

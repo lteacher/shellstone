@@ -134,11 +134,26 @@ abstract class Handler {
 
 /// An annotation to define a relationship between models
 class Rel {
+  /// The model name that this relationship associates with
   final Type model;
+
+  /// The field in THIS model which is referenced by the relation
   final String by;
+
+  /// An optional name replacement for the [by] field
   final String as;
 
-  const Rel({this.model,this.by,this.as});
+  /// An optional replacement name for the joining set or table
+  final String via;
+
+  const Rel({this.model, this.by, this.as, this.via});
+
+  // Copy constructor
+  factory Rel.copy(Rel r, {model, by, as, via}) => new Rel(
+      model: model ?? r.model,
+      by: by ?? r.by,
+      as: as ?? r.as,
+      via: via ?? r.via);
 }
 
 /// An annotation to set a listener for a particular event

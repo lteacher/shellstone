@@ -1,6 +1,6 @@
 import 'dart:mirrors';
+import 'metadata_proxies.dart';
 import '../internal/globals.dart';
-import '../datalayer/schema/schema.dart';
 import '../entities/entity_builder.dart';
 import '../../shellstone.dart';
 
@@ -46,11 +46,14 @@ class MetadataScanner {
       // shellstone adapters (from shellstone.dart)
       addAdapter(
           reflectee.name, this.adapters[reflectee.name].instance.reflectee);
-    }
 
-    // Handle Attr annotations
-    else if (reflectee is Attr)
-      proxy.dependents[name] = reflectee;
+      // Handle Attr annotations
+    } else if (reflectee is Attr)
+      proxy.attributes[name] = reflectee;
+
+    // Handle relations
+    else if (reflectee is Rel)
+      _addRelation(name, m, reflectee, proxy);
 
     // Handle Listen or Hook types
     else if (reflectee is Handler) {
@@ -72,7 +75,7 @@ class MetadataScanner {
 
     if (r.runtimeType == Model) {
       // If the model has no name give it the class name via copy
-      if (r.name == null) r = new Model.copy(name.toLowerCase(),r);
+      if (r.name == null) r = new Model.copy(name.toLowerCase(), r);
 
       map = models;
       proxy = new ModelMetadata(m, r);
@@ -97,6 +100,34 @@ class MetadataScanner {
 
     return map;
   }
+
+  // Adds a relation to the model proxy
+  _addRelation(name, VariableMirror m, Rel r, proxy) {
+    var model = r.model ?? _deriveType(m);
+    r = new Rel.copy(r, model: model);
+
+    proxy.relations[name] = new RelWrapper(r,_isCollection(m.type));
+  }
+
+  // Determines the type of some variable if possible
+  _deriveType(VariableMirror m) {
+    Type t = m.type.reflectedType;
+
+    // Substitute the type if its there is a generic arg
+    if (m.type.typeArguments.isNotEmpty) {
+      t = m.type.typeArguments.first.reflectedType;
+    }
+
+    // This is the one scenario we know will not be valid on scan
+    if (t == dynamic)
+      throw 'Cannot infer type from `$t` for `Rel` with no `model`';
+
+    // Else return as an acceptable type
+    return t;
+  }
+
+  // Check if a typemirror is a collection
+  _isCollection(TypeMirror m) => m.isAssignableTo((reflectType(Iterable)));
 
   // Check if a lib is scannable
   bool _isScannable(Uri uri) {

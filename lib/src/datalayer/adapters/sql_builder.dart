@@ -17,6 +17,7 @@ abstract class SqlBuilder {
     // Add the table creation statements
     return _schemas.fold(new List(), (list, schema) {
       list.addAll(getTableStatements(schema));
+      if (schema.indexes.isNotEmpty) list.addAll(getIndexStatements(schema));
       return list;
     });
   }
@@ -34,7 +35,7 @@ abstract class SqlBuilder {
     buffer.write('create table if not exists ${schema.resource}');
 
     // Buffer the field lines
-    var fields = schema.fields.values.fold(new List(), (list,field) {
+    var fields = schema.allFields.values.fold(new List(), (list,field) {
       list.add(getFieldLine(field));
       return list;
     }).join(',');
@@ -75,6 +76,14 @@ abstract class SqlBuilder {
     if (field.autoIncr) result.add('auto_increment');
 
     return result.join(' ');
+  }
+
+  // Get the statements to add all the indexes
+  List<String> getIndexStatements(Schema schema) {
+    return schema.indexes.values.fold(new List(),(list,field) {
+      list.add('alter table ${schema.resource} add index(${field.column})');
+      return list;
+    });
   }
 
   String getPrimaryKey(Schema schema) => 'primary key (${schema.primaryKey.column})';

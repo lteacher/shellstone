@@ -46,6 +46,38 @@ main() {
       expect(Schema.get('NewUser').getField('ugly').column, equals('uglyThing'));
       expect(Schema.get('NewUser').getField('ugly').unique, equals(true));
     });
+
+    test('Schema relation can be retrieved', () {
+      expect(Schema.get('Person').getRelation('addresses'), new isInstanceOf<SchemaRelation>());
+    });
+
+    test('Schema relation knows all the attributes', () {
+      SchemaRelation relation = Schema.get('Person').getRelation('addresses');
+      expect(relation.name, equals('addresses'));
+      expect(relation.by, equals('externalId'));
+      expect(relation.as, equals('legacy_person_id'));
+    });
+
+    test('Schema relation infers `by` and `as` from Model', () {
+      SchemaRelation relation = Schema.get('Business').getRelation('addresses');
+      expect(relation.by, equals('id'));
+      expect(relation.as, equals('business_id'));
+    });
+
+    test('Schema relation knows if it is a many or single association', () {
+      SchemaRelation relation = Schema.get('Business').getRelation('addresses');
+      expect(relation.isCollection, equals(true));
+    });
+
+    test('Schema with relation has derived field', () {
+      var schema = Schema.get('Address');
+      var field = schema.getDerived('business_id');
+      expect(field, new isInstanceOf<SchemaField>());
+      expect(field.primaryKey, equals(false));
+      expect(field.index, equals(true));
+      expect(field.column, equals(field.name));
+      expect(field.type, equals('integer'));
+    });
   });
 }
 
